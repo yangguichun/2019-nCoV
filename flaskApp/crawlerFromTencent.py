@@ -3,6 +3,7 @@ import json
 from bs4 import BeautifulSoup
 from flaskApp.models import StatisticData, LatestTime
 from flaskApp.extensions import db
+from flaskApp.utils import logger
 from datetime import datetime
 import time
 
@@ -68,7 +69,7 @@ def convertOtherCountryList(dataList, updateTime):
     return result
 
 def readnCoVFromTencent():
-    print('开始抓取疫情数据')
+    logger.info('开始抓取疫情数据')
     result = {'data':[], 'updateTime': datetime(2020,1,1)}
     try:
         lastTime = getLastestUpdateTime()
@@ -78,7 +79,7 @@ def readnCoVFromTencent():
         data = r.json()['data']
         totalData = convertTotalData(data['statistics'])
         if totalData.updateTime <= lastTime:
-            print('数据未更新', totalData.updateTime)
+            logger.warning('数据未更新, ' + str(totalData.updateTime))
             return result
 
         dataList = [totalData]
@@ -91,5 +92,5 @@ def readnCoVFromTencent():
         }
 
     except Exception as e:
-        print('readnCoVFromTencent error',str(e))
+        logger.error('readnCoVFromTencent error, ' +str(e))
         return result

@@ -3,6 +3,7 @@ import json
 from bs4 import BeautifulSoup
 from flaskApp.models import StatisticData, LatestTime
 from flaskApp.extensions import db
+from flaskApp.utils import logger
 from datetime import datetime
 import time
 
@@ -41,7 +42,7 @@ def convertProvinceList(dataList):
 
 
 def readProvinceDataFromIsaaclin():
-    print('开始抓取疫情数据')
+    logger.info('开始抓取疫情数据')
     try:
         url = 'https://lab.isaaclin.cn/nCoV/api/area?latest=0'
         r = requests.get(url, timeout=10)
@@ -49,7 +50,7 @@ def readProvinceDataFromIsaaclin():
         return convertProvinceList(dataList)
 
     except Exception as e:
-        print('readnProvinceDataFromIsaaclin error',str(e))
+        logger.error('readnProvinceDataFromIsaaclin error,' + str(e))
         return []
 
 
@@ -69,7 +70,7 @@ def convertOverallDataList(dataList):
     return result
 
 def readOverallDataFromIsaaclin():
-    print('开始抓取全局疫情数据')
+    logger.info('开始抓取全局疫情数据')
     try:
         url = 'https://lab.isaaclin.cn/nCoV/api/overall?latest=0'
         r = requests.get(url, timeout=10)
@@ -77,5 +78,5 @@ def readOverallDataFromIsaaclin():
         return convertOverallDataList(dataList)
 
     except Exception as e:
-        print('readnOverallDataFromIsaaclin error',str(e))
+        logger.error('readnOverallDataFromIsaaclin error,' + str(e))
         return []

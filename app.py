@@ -4,6 +4,7 @@ from flaskApp.extensions import db, migrate
 from flaskApp.models import StatisticData
 from flaskApp.commands import register_commands
 
+
 import os
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
