@@ -17,7 +17,7 @@
 
 ### 资源
 - [腾讯的读数实时肺炎数据接口](https://service-f9fjwngp-1252021671.bj.apigw.tencentcs.com/release/pneumonia)，[显示界面](https://news.qq.com/zt2020/page/feiyan.htm#charts)
-- [某人抓取的从2020-1-24号之后的历史数据接口](http://lab.isaaclin.cn/nCoV/api/area?latest=0)，[说明文档](http://lab.isaaclin.cn/nCoV/)
+- [某人抓取的从2020-1-24号之后的历史数据接口](https://lab.isaaclin.cn/nCoV/api/area?latest=0)，[说明文档](https://lab.isaaclin.cn/nCoV/)
 
 
 ### 其他

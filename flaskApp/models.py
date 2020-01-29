@@ -2,6 +2,13 @@ from flaskApp.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
+# 用来存储最新数据市标，这样就可以知道最新的数据是否有更新
+class LatestTime(db.Model):
+    updateTime = db.Column(db.DateTime, primary_key=True)
+    def to_json(self):
+        dict = self.__dict__
+        return dict
+
 # 国家，省，市的数据都在这里
 class StatisticData(db.Model):
     id = db.Column(db.Integer, primary_key=True)

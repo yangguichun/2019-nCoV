@@ -1,11 +1,18 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-from flaskApp.models import StatisticData
+from flaskApp.models import StatisticData, LatestTime
+from flaskApp.extensions import db
 from datetime import datetime
 import time
 
 
+def getLastestUpdateTime():
+    times = LatestTime.query.all()
+    if not time != 1: 
+        return datetime(2020, 1, 1, 0, 0, 0)
+    return times[0].updateTime
+    
 def toDateTime(ticks):
     return datetime.fromtimestamp(ticks/1000)
 
@@ -48,21 +55,41 @@ def convertProvinceList(dataList, updateTime):
             result.extend(convertCities(cities, item['provinceName'], updateTime))
     return result
 
-def readnCoV():
+def convertOtherCountryList(dataList, updateTime):
+    result = []
+    for item in dataList:
+        data = StatisticData(updateTime=updateTime)
+        data.countryName = item['name']
+        data.confirmedCount = item['confirmed']
+        data.suspectedCount = item['suspected']
+        data.curedCount = item['cured']
+        data.deadCount = item['dead']
+        result.append(data)
+    return result
+
+def readnCoVFromTencent():
     print('开始抓取疫情数据')
+    result = {'data':[], 'updateTime': datetime(2020,1,1)}
     try:
+        lastTime = getLastestUpdateTime()
         url = 'https://service-f9fjwngp-1252021671.bj.apigw.tencentcs.com/release/pneumonia'
         # url = 'http://lab.isaaclin.cn/nCoV/api/area?latest=0'
         r = requests.get(url, timeout=10)
         data = r.json()['data']
         totalData = convertTotalData(data['statistics'])
-        result = [totalData]
-        dataList = convertProvinceList(data['listByArea'], totalData.updateTime)
-        result.extend(dataList)
-        return result
+        if totalData.updateTime <= lastTime:
+            print('数据未更新', totalData.updateTime)
+            return result
+
+        dataList = [totalData]
+
+        dataList.extend(convertProvinceList(data['listByArea'], totalData.updateTime))
+        dataList.extend(convertOtherCountryList(data['listByOther'], totalData.updateTime))
+        return {
+            'data': dataList,
+            'updateTime': totalData.updateTime
+        }
 
     except Exception as e:
-        print(str(e))
-        return []
-
-# readnCoV()
+        print('readnCoVFromTencent error',str(e))
+        return result
