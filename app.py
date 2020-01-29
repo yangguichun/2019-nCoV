@@ -2,6 +2,8 @@ from flask import Flask
 from flaskApp.settings import config
 from flaskApp.extensions import db, migrate
 from flaskApp.models import StatisticData
+from flaskApp.commands import register_commands
+
 import os
 
 basedir = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
@@ -13,7 +15,7 @@ def create_app(config_name=None):
     app = Flask('nCoA')
     app.config.from_object(config[config_name])
     register_extensions(app)
-    # register_commands(app)
+    register_commands(app)
     # register_blueprints(app)
     return app
 

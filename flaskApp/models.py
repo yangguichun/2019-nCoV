@@ -11,7 +11,6 @@ class StatisticData(db.Model):
     provinceName = db.Column(db.Text)
     # 如果国家、省、市的名称都有，则是市的数据
     cityName = db.Column(db.Text)
-    areaType = db.Column(db.Text)
     updateTime = db.Column(db.DateTime)
     confirmedCount = db.Column(db.Integer)
     suspectedCount = db.Column(db.Integer)
