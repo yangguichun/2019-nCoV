@@ -86,7 +86,7 @@ def register_commands(app):
     def crawl():
         try:
             do_crawl()
-            schedule.every(30).minutes.do(do_crawl)
+            schedule.every(15).minutes.do(do_crawl)
             while True:
                 schedule.run_pending()
                 time.sleep(1)
