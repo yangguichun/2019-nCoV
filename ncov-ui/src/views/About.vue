@@ -1,6 +1,7 @@
 <template>
-  <div >
-    <v-chart :options="mapData" style="width: 100%;height:350px;"/>
+  <div>
+    <van-button type="default">默认按钮</van-button>
+    <v-chart :options="mapData" class="map"/>
   </div>
 </template>
 <script>
@@ -8,7 +9,6 @@ import ECharts from "vue-echarts";
 import chinaMap from '../map-data/china.json'
 ECharts.registerMap('china', chinaMap)
 import mapData from '../chart-options/map'
-
 import "echarts";
 
 export default {
@@ -25,4 +25,8 @@ export default {
 };
 </script>
 <style lang='scss' scoped>
+.map{
+  width: 750px;
+  height:400px;
+}
 </style>
