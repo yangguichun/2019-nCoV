@@ -1,7 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
-// import { get, post } from './js/ajax'
+
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+Vue.use(VueAxios, axios)
+
+
 import { Button,Tabbar, TabbarItem } from 'vant';
 Vue.use(Button);
 Vue.use(Tabbar);

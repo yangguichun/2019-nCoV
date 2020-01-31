@@ -1,7 +1,13 @@
 from flaskApp.extensions import db
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
+class Area(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.Text)
+    parentName = db.Column(db.Text)
+    longitude = db.Column(db.Float) 
+    latitude = db.Column(db.Float) 
+     
 # 用来存储最新数据市标，这样就可以知道最新的数据是否有更新
 class LatestTime(db.Model):
     updateTime = db.Column(db.DateTime, primary_key=True)
