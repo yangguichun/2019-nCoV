@@ -3,6 +3,7 @@ from flaskApp.settings import config
 from flaskApp.extensions import db, migrate
 from flaskApp.models import StatisticData
 from flaskApp.commands import register_commands
+from flaskApp.blueprint.ncov import ncov_bp
 
 
 import os
@@ -17,7 +18,7 @@ def create_app(config_name=None):
     app.config.from_object(config[config_name])
     register_extensions(app)
     register_commands(app)
-    # register_blueprints(app)
+    register_blueprints(app)
     return app
 
 
@@ -26,9 +27,9 @@ def register_extensions(app):
     migrate.init_app(app, db)
     # login_manager.init_app(app)
 
-# def register_blueprints(app):
-#     app.register_blueprint(station_bp)
-#     app.register_blueprint(auth_bp)
+def register_blueprints(app):
+    app.register_blueprint(ncov_bp)
+    # app.register_blueprint(auth_bp)
 
 
 # from todolist import commands, views

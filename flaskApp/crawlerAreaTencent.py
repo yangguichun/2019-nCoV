@@ -7,17 +7,6 @@ from flaskApp.utils import logger
 from datetime import datetime
 import time
 
-
-def convertTotalData(data):
-    staticsData = StatisticData(countryName="全球")
-    staticsData.updateTime = toDateTime(data['modifyTime'])
-    staticsData.confirmedCount = data['confirmedCount']
-    staticsData.suspectedCount = data['suspectedCount']
-    staticsData.curedCount = data['curedCount']
-    staticsData.deadCount = data['deadCount']
-    return staticsData
-
-
 def convertCities(dataList, provinceName, updateTime):
     result = []
     for item in dataList:
@@ -34,7 +23,7 @@ def convertCities(dataList, provinceName, updateTime):
 def convertProvinceList(dataList, updateTime):
     result = []
     for item in dataList:
-        data = StatisticData(countryName = "中国", updateTime=updateTime)
+        data = Area(countryName = "中国", updateTime=updateTime)
         data.provinceName = item['provinceName']
         data.confirmedCount = item['confirmed']
         data.suspectedCount = item['suspected']

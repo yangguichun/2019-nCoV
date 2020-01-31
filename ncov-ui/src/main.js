@@ -2,9 +2,12 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 
-import axios from 'axios'
-import VueAxios from 'vue-axios'
-Vue.use(VueAxios, axios)
+// https://github.com/imcvampire/vue-axios
+// import axios from 'axios'
+// import VueAxios from 'vue-axios'
+// Vue.use(VueAxios, axios)
+import VueResource from 'vue-resource'
+Vue.use(VueResource);
 
 
 import { Button,Tabbar, TabbarItem } from 'vant';
