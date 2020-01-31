@@ -5,8 +5,12 @@ class Area(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Text)
     parentName = db.Column(db.Text)
+    level = db.Column(db.Text)
     longitude = db.Column(db.Float) 
     latitude = db.Column(db.Float) 
+    def to_json(self):
+        dict = self.__dict__
+        return dict
      
 # 用来存储最新数据市标，这样就可以知道最新的数据是否有更新
 class LatestTime(db.Model):

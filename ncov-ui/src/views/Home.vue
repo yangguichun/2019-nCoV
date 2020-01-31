@@ -131,6 +131,13 @@ export default {
       }
       return datas;
     },
+    calcMax(dataList){
+      let max = dataList.reduce((prev, curr) =>{
+        console.log('calcmax', prev, curr.confirmedCount, curr.suspectedCount, curr.curedCount, curr.deadCount)
+        return Math.max(prev, curr.confirmedCount, curr.suspectedCount, curr.curedCount, curr.deadCount)
+      }, 0)
+      return max;
+    },
     queryData() {
       this.$http.get('/ncovtrend/country/全球')
         .then(response => {
@@ -140,6 +147,9 @@ export default {
           this.lineOption.series[1].data = dataList.map( data =>{ return {name: data.updateTime, value: [data.updateTime, data.suspectedCount]}})
           this.lineOption.series[2].data = dataList.map( data =>{ return {name: data.updateTime, value: [data.updateTime, data.curedCount]}})
           this.lineOption.series[3].data = dataList.map( data =>{ return {name: data.updateTime, value: [data.updateTime, data.deadCount]}})
+          let max = this.calcMax(dataList)
+          console.log('max value', max)
+          this.lineOption.yAxis.max = max*1.2
         })
         .catch( res =>{
           console.log('query data failed', res)
@@ -148,8 +158,6 @@ export default {
   },
   mounted() {
     this.queryData()
-    // this.lineOption.series[0].data = this.generateData(10);
-    // this.lineOption.series[1].data = this.generateData(3);
   }
 };
 </script>

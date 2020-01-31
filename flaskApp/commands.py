@@ -1,7 +1,9 @@
 from flaskApp.extensions import db
 from flaskApp.models import StatisticData, LatestTime
-from flaskApp.crawlerFromTencent import readnCoVFromTencent
-from flaskApp.crawlerFromIsasclin import readOverallDataFromIsaaclin, readProvinceDataFromIsaaclin
+from flaskApp.crawler.crawlerFromTencent import readnCoVFromTencent
+from flaskApp.crawler.crawlerAreaTencent import readnAreaFromTencent
+from flaskApp.crawler.crawlerFromIsasclin import readOverallDataFromIsaaclin, readProvinceDataFromIsaaclin
+from flaskApp.crawler.crawlPosition import readPositionFromBaidu
 from flaskApp.utils import logger
 import click
 import schedule
@@ -62,6 +64,34 @@ def register_commands(app):
         except BaseException as e:
             logger.error('抓取发生异常, ' +str(e))
             return False
+
+
+    @app.cli.command()
+    def crawlarea():
+        dataList = readnAreaFromTencent()
+        if len(dataList) == 0:
+            logger.warning('没有采集到数据')
+            return False
+        try:
+            logger.info('开始写入数据...')
+            counter = 0
+            for item in dataList:
+                # counter += 1
+                if item.level != 'country':
+                    pos = readPositionFromBaidu(item.name, item.parentName)
+                    if pos:
+                        item.longitude = pos["lng"]
+                        item.latitude = pos["lat"]
+                db.session.add(item)
+                db.session.commit()
+                # if counter > 10:
+                #     break
+                
+            logger.info('写入数据完成...')
+            return True
+        except BaseException as e:
+            logger.error('抓取发生异常,' + str(e))
+            return False   
 
     @app.cli.command()
     def crawloverallhistory():
