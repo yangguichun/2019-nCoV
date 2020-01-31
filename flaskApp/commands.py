@@ -1,10 +1,12 @@
 from flaskApp.extensions import db
-from flaskApp.models import StatisticData, LatestTime
+from flaskApp.models import StatisticData, LatestTime, Area
 from flaskApp.crawler.crawlerFromTencent import readnCoVFromTencent
 from flaskApp.crawler.crawlerAreaTencent import readnAreaFromTencent
 from flaskApp.crawler.crawlerFromIsasclin import readOverallDataFromIsaaclin, readProvinceDataFromIsaaclin
 from flaskApp.crawler.crawlPosition import readPositionFromBaidu
 from flaskApp.utils import logger
+from sqlalchemy import and_, distinct, text
+
 import click
 import schedule
 from datetime import datetime
@@ -126,3 +128,17 @@ def register_commands(app):
     @app.cli.command()
     def updatetime():
         updateUpdateTime(datetime(2020,1,29))
+    
+    @app.cli.command()
+    def testsql():
+        # dataList = StatisticData.query.distinct(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName).filter(and_(StatisticData.updateTime>'2020-01-30', StatisticData.updateTime<'2020-01-31')).order_by(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName, StatisticData.updateTime.desc()).all()
+        # nameList = ','.join(['\'武汉\'', '\'深圳\''])
+        # sql = f'name in ( {nameList} )' 
+        nameList = ['\'武汉\'', '\'深圳\'']
+        nameStr = ','.join(nameList)
+        sql = f'name in ({nameStr})' 
+        dataList = Area.query.filter(text(sql)).all()
+        logger.info('count is %d', len(dataList))
+        for item in dataList:
+            logger.info(item.to_json())
+            # logger.info("%s %s", item.cityName, item.updateTime)

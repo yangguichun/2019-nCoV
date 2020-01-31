@@ -6,6 +6,7 @@ class Area(db.Model):
     name = db.Column(db.Text)
     parentName = db.Column(db.Text)
     level = db.Column(db.Text)
+
     longitude = db.Column(db.Float) 
     latitude = db.Column(db.Float) 
     def to_json(self):
@@ -28,7 +29,7 @@ class StatisticData(db.Model):
     provinceName = db.Column(db.Text)
     # 如果国家、省、市的名称都有，则是市的数据
     cityName = db.Column(db.Text)
-    updateTime = db.Column(db.DateTime)
+    updateTime = db.Column(db.DateTime, index=True)
     confirmedCount = db.Column(db.Integer)
     suspectedCount = db.Column(db.Integer)
     curedCount = db.Column(db.Integer)
