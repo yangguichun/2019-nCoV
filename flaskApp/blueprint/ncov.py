@@ -14,23 +14,6 @@ def index():
     return render_template('index.html')
 
 
-def convertCity(data):
-    return {
-        "name": data.cityName,
-        "confirmedCount": data.confirmedCount,
-        "suspectedCount": data.suspectedCount,
-        "curedCount": data.curedCount,
-        "deadCount": data.deadCount
-    }
-
-def convertProvince(data):
-    return {
-        "name": data.provinceName,
-        "confirmedCount": data.confirmedCount,
-        "suspectedCount": data.suspectedCount,
-        "curedCount": data.curedCount,
-        "deadCount": data.deadCount
-    }
 
 def getPositionList(nameList):
     nameStr =  ','.join(nameList)
@@ -41,8 +24,54 @@ def getPositionList(nameList):
         res[area.name] = area
     return res
 
+
+@ncov_bp.route('/arealist/<level>', methods=['GET'])
+def areaList(level):
+    # level, 只支持province, city
+    if level not in ['city', 'province']:
+        return jsonify(code=-1, msg="not supported level")
+
+    def convertCity(areaList):
+        result = {}
+        for area in areaList:
+            if area.parentName not in result:
+                result[area.parentName] = []
+            result[area.parentName].append(area.name)
+        return result
+
+    def convertProvince(areaList):
+        result = []
+        for area in areaList:
+            result.append(area.name)
+        return result
+            
+    areaList = Area.query.filter(Area.level==level).all()
+    result = None
+    if level == 'city':
+        result = convertCity(areaList)
+    else:
+        result = convertProvince(areaList)
+    return jsonify(code = 0, data=result)
+    
 @ncov_bp.route('/allareadata/<level>/<date>', methods=['GET'])
 def allAreaData(level, date):
+    def convertCity(data):
+        return {
+            "name": data.cityName,
+            "confirmedCount": data.confirmedCount,
+            "suspectedCount": data.suspectedCount,
+            "curedCount": data.curedCount,
+            "deadCount": data.deadCount
+        }
+
+    def convertProvince(data):
+        return {
+            "name": data.provinceName,
+            "confirmedCount": data.confirmedCount,
+            "suspectedCount": data.suspectedCount,
+            "curedCount": data.curedCount,
+            "deadCount": data.deadCount
+        }
     logger.info('allAreaData %s %s', level, date)
     startDate = date
     if strToDatetime(date) > datetime.now():
