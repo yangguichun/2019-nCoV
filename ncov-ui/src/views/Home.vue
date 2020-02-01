@@ -25,7 +25,9 @@ export default {
       mapOption,
       lineOption,
       theDate: moment(),
-      theDateStr:moment().format('YYYY-MM-DD')
+      theDateStr:moment().format('YYYY-MM-DD'),
+      minDate: moment("2020-01-24"),
+      maxDate: moment(moment().add(1, 'd').format('YYYY-MM-DD')),
     };
   },
   computed: {},
@@ -33,12 +35,20 @@ export default {
     onPrevious(){
       console.log('onPrevious')
       this.theDate.add(-1, 'd')
+      if(this.theDate < this.minDate){
+        this.theDate.add(1, 'd')
+        return
+      } 
       this.theDateStr = this.theDate.format('YYYY-MM-DD')
       this.queryTheDateData('city', this.theDateStr)
     },
     onNext(){
       console.log('onNext')
-      this.theDate = this.theDate.add(1, 'd')
+      this.theDate.add(1, 'd')
+      if(this.theDate > this.maxDate){
+        this.theDate.add(-1, 'd')
+        return 
+      }
       this.theDateStr = this.theDate.format('YYYY-MM-DD')
       this.queryTheDateData('city', this.theDateStr)
     },
@@ -98,7 +108,7 @@ export default {
   mounted() {
     this.queryTrendData('country', '全球')
     // this.queryTheDateData('province', '2020-1-30')
-    this.queryTheDateData('city', '2020-1-31')
+    this.queryTheDateData('city', this.theDateStr)
   }
 };
 </script>

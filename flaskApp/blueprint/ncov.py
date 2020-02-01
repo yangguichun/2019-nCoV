@@ -1,4 +1,4 @@
-from flaskApp.models import DataLogs, Area
+from flaskApp.models import DataLogs, Area, DayCaches
 from flask import jsonify, request, render_template, Blueprint
 from flask_login import login_required, current_user
 from sqlalchemy import and_, text
@@ -49,7 +49,8 @@ def allAreaData(level, date):
         return jsonify(code = -1, msg = "not supported error.")
 
     endDate = (strToDatetime(date) + timedelta(1)).strftime('%Y-%m-%d')
-    dataList = DataLogs.query.distinct(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName).filter(and_(DataLogs.updateTime>startDate, DataLogs.updateTime<endDate)).order_by(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName, DataLogs.updateTime.desc()).all()
+    # dataList = DataLogs.query.distinct(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName).filter(and_(DataLogs.updateTime>startDate, DataLogs.updateTime<endDate)).order_by(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName, DataLogs.updateTime.desc()).all()
+    dataList = DayCaches.query.filter(DayCaches.updateTime == date).all()
     if level == 'city':
         dataList = [convertCity(item) for item in dataList if item.cityName]
     elif level == 'province':
