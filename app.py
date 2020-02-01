@@ -1,7 +1,7 @@
 from flask import Flask
 from flaskApp.settings import config
 from flaskApp.extensions import db, migrate
-from flaskApp.models import StatisticData
+from flaskApp.models import DataLogs
 from flaskApp.commands import register_commands
 from flaskApp.blueprint.ncov import ncov_bp
 

@@ -5,7 +5,7 @@
   - ~~接口：获取最新的所有市的数据~~
   - ~~接口：获取指定日期的省份数据，其实就是获取该日期的最后一条~~，对应的sql语句如下。
   >select distinct on("countryName", "provinceName", "cityName") "countryName", "provinceName", "cityName","updateTime", 
-       "confirmedCount", "suspectedCount", "curedCount", "deadCount" from statistic_data where "updateTime" > '2020-01-30' and "updateTime" <'2020-01-31' order by "countryName", "provinceName", "cityName", "updateTime" desc
+       "confirmedCount", "suspectedCount", "curedCount", "deadCount" from data_logs where "updateTime" > '2020-01-30' and "updateTime" <'2020-01-31' order by "countryName", "provinceName", "cityName", "updateTime" desc
   - ~~接口：获取指定日期的城市数据~~
   - 接口：获取每个省份、城市每天的增量数据
   - 接口：获取所有省份列表

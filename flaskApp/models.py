@@ -21,7 +21,7 @@ class LatestTime(db.Model):
         return dict
 
 # 国家，省，市的数据都在这里
-class StatisticData(db.Model):
+class DataLogs(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # 不能为空，如果只有国家名称，没有省市的名称，则表示国家的数据
     countryName = db.Column(db.Text)

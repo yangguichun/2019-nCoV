@@ -1,4 +1,4 @@
-from flaskApp.models import StatisticData, Area
+from flaskApp.models import DataLogs, Area
 from flask import jsonify, request, render_template, Blueprint
 from flask_login import login_required, current_user
 from sqlalchemy import and_, text
@@ -49,7 +49,7 @@ def allAreaData(level, date):
         return jsonify(code = -1, msg = "not supported error.")
 
     endDate = (strToDatetime(date) + timedelta(1)).strftime('%Y-%m-%d')
-    dataList = StatisticData.query.distinct(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName).filter(and_(StatisticData.updateTime>startDate, StatisticData.updateTime<endDate)).order_by(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName, StatisticData.updateTime.desc()).all()
+    dataList = DataLogs.query.distinct(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName).filter(and_(DataLogs.updateTime>startDate, DataLogs.updateTime<endDate)).order_by(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName, DataLogs.updateTime.desc()).all()
     if level == 'city':
         dataList = [convertCity(item) for item in dataList if item.cityName]
     elif level == 'province':
@@ -72,11 +72,11 @@ def ncovTrend(level, name):
     logger.info('level=%s, name=%s', level, name)
     dataList = []
     if level == 'country':
-        dataList = StatisticData.query.filter(and_(StatisticData.countryName == name)).order_by(StatisticData.updateTime).all()
+        dataList = DataLogs.query.filter(and_(DataLogs.countryName == name)).order_by(DataLogs.updateTime).all()
     elif level == 'province':
-        dataList = StatisticData.query.filter(and_(StatisticData.provinceName == name)).order_by(StatisticData.updateTime).all()
+        dataList = DataLogs.query.filter(and_(DataLogs.provinceName == name)).order_by(DataLogs.updateTime).all()
     elif level == 'city':
-        dataList = StatisticData.query.filter(and_(StatisticData.cityName == name)).order_by(StatisticData.updateTime).all()
+        dataList = DataLogs.query.filter(and_(DataLogs.cityName == name)).order_by(DataLogs.updateTime).all()
     else:
         return jsonify(code=-1, msg="unsupported level")
     

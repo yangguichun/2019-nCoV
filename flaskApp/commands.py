@@ -1,5 +1,5 @@
 from flaskApp.extensions import db
-from flaskApp.models import StatisticData, LatestTime, Area
+from flaskApp.models import DataLogs, LatestTime, Area
 from flaskApp.crawler.crawlerFromTencent import readnCoVFromTencent
 from flaskApp.crawler.crawlerAreaTencent import readnAreaFromTencent
 from flaskApp.crawler.crawlerFromIsasclin import readOverallDataFromIsaaclin, readProvinceDataFromIsaaclin
@@ -128,14 +128,14 @@ def register_commands(app):
     @app.cli.command()
     def cachedata():
         pass
-    
+
     @app.cli.command()
     def updatetime():
         updateUpdateTime(datetime(2020,1,29))
     
     @app.cli.command()
     def testsql():
-        # dataList = StatisticData.query.distinct(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName).filter(and_(StatisticData.updateTime>'2020-01-30', StatisticData.updateTime<'2020-01-31')).order_by(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName, StatisticData.updateTime.desc()).all()
+        # dataList = DataLogs.query.distinct(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName).filter(and_(DataLogs.updateTime>'2020-01-30', DataLogs.updateTime<'2020-01-31')).order_by(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName, DataLogs.updateTime.desc()).all()
         # nameList = ','.join(['\'武汉\'', '\'深圳\''])
         # sql = f'name in ( {nameList} )' 
         nameList = ['\'武汉\'', '\'深圳\'']

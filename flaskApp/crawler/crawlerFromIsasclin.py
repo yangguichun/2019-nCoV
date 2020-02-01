@@ -1,7 +1,7 @@
 import requests
 import json
 from bs4 import BeautifulSoup
-from flaskApp.models import StatisticData, LatestTime
+from flaskApp.models import DataLogs, LatestTime
 from flaskApp.extensions import db
 from flaskApp.utils import logger
 from datetime import datetime
@@ -14,7 +14,7 @@ def toDateTime(ticks):
 def convertCities(dataList, countryName, provinceName, updateTime):
     result = []
     for item in dataList:
-        data = StatisticData(countryName = countryName, provinceName = provinceName, updateTime=updateTime)
+        data = DataLogs(countryName = countryName, provinceName = provinceName, updateTime=updateTime)
         data.cityName = item['cityName']
         data.confirmedCount = item['confirmedCount']
         data.suspectedCount = item['suspectedCount']
@@ -26,7 +26,7 @@ def convertCities(dataList, countryName, provinceName, updateTime):
 def convertProvinceList(dataList):
     result = []
     for item in dataList:
-        data = StatisticData()
+        data = DataLogs()
         data.countryName = item['country']
         data.provinceName = item['provinceName']
         data.updateTime = toDateTime(item['updateTime'])
@@ -59,7 +59,7 @@ def readProvinceDataFromIsaaclin():
 def convertOverallDataList(dataList):
     result = []
     for item in dataList:
-        data = StatisticData()
+        data = DataLogs()
         data.countryName = '全球'
         data.updateTime = toDateTime(item['updateTime'])
         data.confirmedCount = item['confirmedCount']
