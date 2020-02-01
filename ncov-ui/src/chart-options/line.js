@@ -1,6 +1,6 @@
 export default {
   title: {
-    text: "2019武汉肺炎数据"
+    text: "总数趋势"
   },
   tooltip: {
     trigger: "axis",
@@ -56,28 +56,24 @@ export default {
     {
       name: "确诊",
       type: "line",
-      showSymbol: false,
       hoverAnimation: false,
       data: []
     },
     {
       name: "疑似",
       type: "line",
-      showSymbol: false,
       hoverAnimation: false,
       data: []
     },
     {
       name: "治愈",
       type: "line",
-      showSymbol: false,
       hoverAnimation: false,
       data: []
     },
     {
       name: "死亡",
       type: "line",
-      showSymbol: false,
       hoverAnimation: false,
       data: []
     }

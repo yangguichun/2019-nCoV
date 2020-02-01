@@ -121,29 +121,14 @@ def datalogs(level, name):
         })
     return jsonify(code=0, data=result)
 
+
 # 获取每日增量数据
 @ncov_bp.route('/incrementlogs/<level>/<name>', methods=['GET'])
 def incrementlogs(level, name):
     logger.info('level=%s, name=%s', level, name)
-    dataList = []
-    if level == 'country':
-        dataList = DayCaches.query.filter(and_(DayCaches.countryName == name)).order_by(DayCaches.updateTime).all()
-    elif level == 'province':
-        dataList = DayCaches.query.filter(and_(DayCaches.provinceName == name)).order_by(DayCaches.updateTime).all()
-    elif level == 'city':
-        dataList = DayCaches.query.filter(and_(DayCaches.cityName == name)).order_by(DayCaches.updateTime).all()
-    else:
-        return jsonify(code=-1, msg="unsupported level")
-    
-    dayCountList = []
-    for item in dataList:
-        dayCountList.append({
-            "updateTime": item.updateTime.strftime("%Y-%m-%d"),
-            "confirmedCount": item.confirmedCount,
-            "suspectedCount": item.suspectedCount,
-            "curedCount": item.curedCount,
-            "deadCount": item.deadCount
-        })
+    if level not in ['country', 'province', 'city']:
+        return jsonify(code = -1, msg="not supported level")
+    dayCountList = queryDayLogs(level, name)
     
     dayIncList = []
     for index, data in enumerate(dayCountList):
@@ -158,3 +143,34 @@ def incrementlogs(level, name):
         dayIncList.append(item)
 
     return jsonify(code=0, data=dayIncList)
+
+def queryDayLogs(level, name):
+    dataList = []
+    if level == 'country':
+        dataList = DayCaches.query.filter(and_(DayCaches.countryName == name)).order_by(DayCaches.updateTime).all()
+    elif level == 'province':
+        dataList = DayCaches.query.filter(and_(DayCaches.provinceName == name)).order_by(DayCaches.updateTime).all()
+    elif level == 'city':
+        dataList = DayCaches.query.filter(and_(DayCaches.cityName == name)).order_by(DayCaches.updateTime).all()
+    else:
+        return []
+
+    dayCountList = []
+    for item in dataList:
+        dayCountList.append({
+            "updateTime": item.updateTime.strftime("%Y-%m-%d"),
+            "confirmedCount": item.confirmedCount,
+            "suspectedCount": item.suspectedCount,
+            "curedCount": item.curedCount,
+            "deadCount": item.deadCount
+        })
+    return dayCountList
+
+# 获取某个区域的每日数据列表
+@ncov_bp.route('/daylogs/<level>/<name>', methods=['GET'])
+def daylogs(level, name):
+    logger.info('level=%s, name=%s', level, name)
+    if level not in ['country', 'province', 'city']:
+        return jsonify(code = -1, msg="not supported level")
+    dataList = queryDayLogs(level, name)
+    return jsonify(code=0, data=dataList)

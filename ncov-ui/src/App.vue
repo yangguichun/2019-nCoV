@@ -1,10 +1,12 @@
 <template>
   <div id="app">
+    <div class="customize">
+      <router-view />
+    </div>
     <van-tabbar v-model="active" @change="onTabChange">
       <van-tabbar-item name="home" to="/" icon="location-o">分布</van-tabbar-item>
       <van-tabbar-item name="trend" to="/trend" icon="chart-trending-o">趋势</van-tabbar-item>
     </van-tabbar>
-    <router-view />
   </div>
 </template>
 
@@ -42,5 +44,8 @@ export default {
       color: #42b983;
     }
   }
+}
+.customize{
+  margin-bottom: 100px;
 }
 </style>
