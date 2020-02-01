@@ -34,6 +34,32 @@ import mapOption from "../chart-options/map";
 import treeMapOption from "../chart-options/treemap";
 import "echarts";
 
+let selectedOptionsList = {
+  confirmed: {
+    itemName: "confirmedCount",
+    label: "确诊人数",
+    color: "rgb(255,12,39)",
+    sizeDevicder: 15
+  },
+  suspected: {
+    itemName: "suspectedCount",
+    label: "疑似人数",
+    color: "rgb(13,94,242)",
+    sizeDevicder: 3
+  },
+  cured: {
+    itemName: "curedCount",
+    label: "治愈人数",
+    color: "rgb(0, 151, 15)",
+    sizeDevicder: 3
+  },
+  dead: {
+    itemName: "deadCount",
+    label: "死亡人数",
+    color: "rgb(100, 100, 100)",
+    sizeDevicder: 3
+  }
+};
 export default {
   components: {
     "v-chart": ECharts
@@ -50,11 +76,7 @@ export default {
           .add(1, "d")
           .format("YYYY-MM-DD")
       ),
-      dataName: "confirmedCount",
-      selectedData: {
-        name: "confirmedCount",
-        color: "#ff0000"
-      },
+      selectedOption: selectedOptionsList.confirmed,
       level: "province"
     };
   },
@@ -80,69 +102,54 @@ export default {
       this.theDateStr = this.theDate.format("YYYY-MM-DD");
       this.queryTheDateData();
     },
+    updateOptionAndQuery(sizeDevider) {
+      this.queryTheDateData();
+      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
+      this.mapOption.series[0].itemStyle.color = this.selectedOption.color;
+      this.mapOption.series[0].symbolSize = val => {
+        if (val[2] == 0) return 0;
+        let size = Math.min(val[2] / sizeDevider, 25);
+        if (size < 2) size = 2;
+        return size;
+      };
+    },
     onConfirm() {
       console.log("onConfirm");
-      this.treeMapOption.series[0].name = this.mapOption.title.text =
-        "确诊人数";
-      // this.mapOption.series[0].itemStyle.color = 'rgb(255,127,39)'
-      this.mapOption.series[0].itemStyle.color = "rgb(255,12,39)";
-      this.mapOption.series[0].symbolSize = val => {
-        if(val[2] == 0) return 0
-        let size = Math.min(val[2] / 15, 25);
-        if (size < 2) size = 2;
-        return size;
-      };
-      this.dataName = "confirmedCount";
-      this.queryTheDateData();
+      this.selectedOption = selectedOptionsList.confirmed;
+      this.updateOptionAndQuery(15);
     },
-    onSuspect() {
-      console.log("onSuspect");
-      this.treeMapOption.series[0].name = this.mapOption.title.text =
-        "疑似人数";
-      this.mapOption.series[0].itemStyle.color = "rgb(13,94,242)";
-      this.mapOption.series[0].symbolSize = val => {
-        if(val[2] == 0) return 0
-        let size = Math.min(val[2] / 15, 25);
-        if (size < 2) size = 2;
-        return size;
-      };
-      this.dataName = "suspectedCount";
-      this.queryTheDateData();
-    },
+    // onSuspect() {
+    //   console.log("onSuspect");
+    //   this.treeMapOption.series[0].name = this.mapOption.title.text = `疑似人数(${this.level})`;
+    //   this.mapOption.series[0].itemStyle.color = "rgb(13,94,242)";
+    //   this.mapOption.series[0].symbolSize = val => {
+    //     if (val[2] == 0) return 0;
+    //     let size = Math.min(val[2] / 15, 25);
+    //     if (size < 2) size = 2;
+    //     return size;
+    //   };
+    //   this.dataName = "suspectedCount";
+    //   this.queryTheDateData();
+    // },
     onCured() {
       console.log("onCured");
-      this.treeMapOption.series[0].name = this.mapOption.title.text =
-        "治愈人数";
-      this.mapOption.series[0].itemStyle.color = "rgb(0, 151, 15)";
-      this.mapOption.series[0].symbolSize = val => {
-        if(val[2] == 0) return 0
-        let size = Math.min(val[2] / 3, 25);
-        if (size < 2) size = 2;
-        return size;
-      };
-      this.dataName = "curedCount";
-      this.queryTheDateData();
+      this.selectedOption = selectedOptionsList.cured;
+      this.updateOptionAndQuery(3);
     },
     onDead() {
       console.log("onDead");
-      this.treeMapOption.series[0].name = this.mapOption.title.text =
-        "死亡人数";
-      this.mapOption.series[0].itemStyle.color = "rgb(100, 100, 100)";
-      this.mapOption.series[0].symbolSize = val => {
-        if(val[2] == 0) return 0
-        let size = Math.min(val[2] / 3, 25);
-        if (size < 2) size = 2;
-        return size;
-      };
-      this.dataName = "deadCount";
+      this.selectedOption = selectedOptionsList.dead;
+      this.updateOptionAndQuery(3);
+    },
+    onCity() {
+      this.level = "city";
+      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
       this.queryTheDateData();
     },
-    onCity(){
-      this.level = 'city'
-      this.queryTheDateData();
-    },
-    onProvince(){
-      this.level = 'province'
+    onProvince() {
+      this.level = "province";
+      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
+
       this.queryTheDateData();
     },
     calcMax(dataList) {
@@ -179,17 +186,21 @@ export default {
           let formatedMapDataList = dataList.map(item => {
             return {
               name: item.name,
-              value: [item.lng, item.lat, item[this.dataName]]
+              value: [item.lng, item.lat, item[this.selectedOption.itemName]]
             };
           });
           let formatedMapTreeData = dataList.map(item => {
-            if (item[this.dataName] > 0) {
-              console.log("大于1的数量", item.name, item[this.dataName]);
+            if (item[this.selectedOption.itemName] > 0) {
+              console.log(
+                "大于1的数量",
+                item.name,
+                item[this.selectedOption.itemName]
+              );
             }
             return {
               name: item.name,
               path: item.name,
-              value: item[this.dataName]
+              value: item[this.selectedOption.itemName]
             };
           });
 
@@ -203,7 +214,7 @@ export default {
     }
   },
   mounted() {
-    this.queryTheDateData();
+    this.updateOptionAndQuery(15);
   }
 };
 </script>

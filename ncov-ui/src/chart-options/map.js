@@ -3,7 +3,7 @@
 export default {
   backgroundColor: '#eeeeee',
   title: {
-    text: '确诊人数',
+    text: '确诊人数(province)',
     left: 'center',
     textStyle: {
       color: '#333333'
@@ -25,6 +25,7 @@ export default {
   geo: {
     map: 'china',
     roam: true,
+    zoom: 1.2,
     label: {
       emphasis: {
         show: false
