@@ -10,10 +10,11 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource);
 
 
-import { Button,Tabbar, TabbarItem } from 'vant';
+import { Button,Tabbar, TabbarItem,Tag} from 'vant';
 Vue.use(Button);
 Vue.use(Tabbar);
 Vue.use(TabbarItem);
+Vue.use(Tag);
 
 // import ECharts from 'vue-echarts'
 // import 'echarts'

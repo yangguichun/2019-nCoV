@@ -1,13 +1,14 @@
+// import echarts from 'echarts'
+
 export default {
-  backgroundColor: '#404a59',
+  backgroundColor: '#eeeeee',
   title: {
-    text: '全国肺炎数据',
-    subtext: 'data from PM25.in',
-    sublink: 'http://www.pm25.in',
+    text: '确诊人数',
     left: 'center',
     textStyle: {
-      color: '#fff'
-    }
+      color: '#333333'
+    },
+    top:10
   },
   tooltip: {
     trigger: 'item'
@@ -23,6 +24,7 @@ export default {
   },
   geo: {
     map: 'china',
+    roam: true,
     label: {
       emphasis: {
         show: false
@@ -30,8 +32,8 @@ export default {
     },
     itemStyle: {
       normal: {
-        areaColor: '#323c48',
-        borderColor: '#111'
+        areaColor: '#f7f8fa',
+        borderColor: '#888888',
       },
       emphasis: {
         areaColor: '#2a333d'
@@ -44,8 +46,10 @@ export default {
       type: 'scatter',
       coordinateSystem: 'geo',
       data: [],
-      symbolSize: val => { 
-        return Math.min(val[2]/10, 20)
+      symbolSize: val => {
+        let size = Math.min(val[2] / 15, 25)
+        if (size < 2) size = 2
+        return size;
       },
       tooltip: {
         formatter: function (val) {
@@ -53,10 +57,16 @@ export default {
         }
       },
       itemStyle: {
-        normal: {
-          color: '#ddb926'
-        }
+        color: 'rgb(255,12,39)',
+        opacity: 0.8
       }
+      // new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+      //   offset: 0,
+      //   color: 'rgb(129, 227, 238)'
+      // }, {
+      //   offset: 1,
+      //   color: 'rgb(25, 183, 207)'
+      // }])
     },
     {
       name: 'Top 5',
