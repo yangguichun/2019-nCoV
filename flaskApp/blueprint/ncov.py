@@ -68,8 +68,8 @@ def allAreaData(level, date):
     return jsonify(code=0, data=result)
 
 
-@ncov_bp.route('/ncovtrend/<level>/<name>', methods=['GET'])
-def ncovTrend(level, name):
+@ncov_bp.route('/datalogs/<level>/<name>', methods=['GET'])
+def datalogs(level, name):
     logger.info('level=%s, name=%s', level, name)
     dataList = []
     if level == 'country':
@@ -91,3 +91,41 @@ def ncovTrend(level, name):
             "deadCount": item.deadCount
         })
     return jsonify(code=0, data=result)
+
+# 获取每日增量数据
+@ncov_bp.route('/incrementlogs/<level>/<name>', methods=['GET'])
+def incrementlogs(level, name):
+    logger.info('level=%s, name=%s', level, name)
+    dataList = []
+    if level == 'country':
+        dataList = DayCaches.query.filter(and_(DayCaches.countryName == name)).order_by(DayCaches.updateTime).all()
+    elif level == 'province':
+        dataList = DayCaches.query.filter(and_(DayCaches.provinceName == name)).order_by(DayCaches.updateTime).all()
+    elif level == 'city':
+        dataList = DayCaches.query.filter(and_(DayCaches.cityName == name)).order_by(DayCaches.updateTime).all()
+    else:
+        return jsonify(code=-1, msg="unsupported level")
+    
+    dayCountList = []
+    for item in dataList:
+        dayCountList.append({
+            "updateTime": item.updateTime.strftime("%Y-%m-%d"),
+            "confirmedCount": item.confirmedCount,
+            "suspectedCount": item.suspectedCount,
+            "curedCount": item.curedCount,
+            "deadCount": item.deadCount
+        })
+    
+    dayIncList = []
+    for index, data in enumerate(dayCountList):
+        item = data.copy()
+        if index == 0:
+            dayIncList.append(item)
+            continue
+        item["confirmedCount"] = data['confirmedCount'] - dayCountList[index-1]['confirmedCount']
+        item["suspectedCount"] = data['suspectedCount'] - dayCountList[index-1]['suspectedCount']
+        item["curedCount"] = data['curedCount'] - dayCountList[index-1]['curedCount']
+        item["deadCount"] = data['deadCount'] - dayCountList[index-1]['deadCount']
+        dayIncList.append(item)
+
+    return jsonify(code=0, data=dayIncList)

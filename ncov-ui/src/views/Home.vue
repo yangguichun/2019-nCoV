@@ -83,7 +83,7 @@ export default {
         })
     },
     queryTrendData(level, area) {
-      return this.$http.get(`/ncovtrend/${level}/${area}`)
+      return this.$http.get(`/datalogs/${level}/${area}`)
         .then(response => {
           console.log('queryTrendData success', response.data);
           let data = response.data
