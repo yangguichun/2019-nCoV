@@ -8,13 +8,13 @@
     </div>
     <div class="data-type">
       <van-tag round class="data-item" type="danger" @click="onConfirm">确诊</van-tag>
-      <!-- <van-tag round class="data-item" type="primary" @click="onSuspect">疑似</van-tag> -->
+      <van-tag round class="data-item" type="primary" @click="onSuspect">疑似</van-tag>
       <van-tag round class="data-item" type="success" @click="onCured">治愈</van-tag>
       <van-tag round class="data-item" @click="onDead">死亡</van-tag>
     </div>
     <div class="area-type"></div>
     <v-chart :options="mapOption" class="map" />
-    <v-chart :options="treeMapOption" class="treemap" />
+    <v-chart :options="lineOption" class="line" />
   </div>
 </template>
 <script>
@@ -23,7 +23,7 @@ import ECharts from "vue-echarts";
 import chinaMap from "../map-data/china.json";
 ECharts.registerMap("china", chinaMap);
 import mapOption from "../chart-options/map";
-import treeMapOption from "../chart-options/treemap";
+import lineOption from "../chart-options/line";
 import "echarts";
 
 export default {
@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       mapOption,
-      treeMapOption,
+      lineOption,
       theDate: moment(),
       theDateStr: moment().format("YYYY-MM-DD"),
       minDate: moment("2020-01-24"),
@@ -74,7 +74,7 @@ export default {
     },
     onConfirm(){
       console.log('onConfirm')
-      this.treeMapOption.series[0].name = this.mapOption.title.text="确诊人数"
+      this.mapOption.title.text="确诊人数"
       // this.mapOption.series[0].itemStyle.color = 'rgb(255,127,39)'
       this.mapOption.series[0].itemStyle.color = 'rgb(255,12,39)'
       this.mapOption.series[0].symbolSize = (val) =>{
@@ -87,7 +87,7 @@ export default {
     },
     onSuspect(){
       console.log('onSuspect')
-      this.treeMapOption.series[0].name = this.mapOption.title.text="疑似人数"
+      this.mapOption.title.text="疑似人数"
       this.mapOption.series[0].itemStyle.color = 'rgb(13,94,242)'
       this.mapOption.series[0].symbolSize = (val) =>{
         let size = Math.min(val[2] / 15, 25)
@@ -99,7 +99,7 @@ export default {
     },
     onCured(){
       console.log('onCured')
-      this.treeMapOption.series[0].name = this.mapOption.title.text="治愈人数"
+      this.mapOption.title.text="治愈人数"
       this.mapOption.series[0].itemStyle.color = 'rgb(0, 151, 15)'
       this.mapOption.series[0].symbolSize = (val) =>{
         let size = Math.min(val[2] / 3, 25)
@@ -112,7 +112,7 @@ export default {
     },
     onDead(){
       console.log('onDead')
-      this.treeMapOption.series[0].name = this.mapOption.title.text="死亡人数"
+      this.mapOption.title.text="死亡人数"
       this.mapOption.series[0].itemStyle.color = 'rgb(100, 100, 100)'
       this.mapOption.series[0].symbolSize = (val) =>{
         let size = Math.min(val[2] / 3, 25)
@@ -153,34 +153,65 @@ export default {
             return;
           }
           let dataList = res.data.data;
-          let formatedMapDataList = dataList.map(item => {
+          let formatedList = dataList.map(item => {
             return {
               name: item.name,
               value: [item.lng, item.lat, item[this.dataName]]
             };
           });
-          let formatedMapTreeData = dataList.map( item=>{
-            if( item[this.dataName] >0 ){
-              console.log('大于1的数量', item.name, item[this.dataName])
-            }
-            return {
-              name: item.name,
-              path: item.name,
-              value: item[this.dataName]
-            }
-          })
-
-          this.mapOption.series[0].data = formatedMapDataList;
-          console.log('formatedMapTreeData', formatedMapTreeData)
-          this.treeMapOption.series[0].data = formatedMapTreeData 
-
+          this.mapOption.series[0].data = formatedList;
         })
         .catch(res => {
           console.log("queryTheDateData fail", res.data);
         });
+    },
+    queryTrendData(level, area) {
+      return this.$http
+        .get(`/datalogs/${level}/${area}`)
+        .then(response => {
+          console.log("queryTrendData success", response.data);
+          let data = response.data;
+          if (data.code != 0) {
+            console.log("queryTrendData success", data.msg);
+            return;
+          }
+          let dataList = response.data.data;
+          this.lineOption.series[0].data = dataList.map(data => {
+            return {
+              name: data.updateTime,
+              value: [data.updateTime, data.confirmedCount]
+            };
+          });
+          this.lineOption.series[1].data = dataList.map(data => {
+            return {
+              name: data.updateTime,
+              value: [data.updateTime, data.suspectedCount]
+            };
+          });
+          this.lineOption.series[2].data = dataList.map(data => {
+            return {
+              name: data.updateTime,
+              value: [data.updateTime, data.curedCount]
+            };
+          });
+          this.lineOption.series[3].data = dataList.map(data => {
+            return {
+              name: data.updateTime,
+              value: [data.updateTime, data.deadCount]
+            };
+          });
+          let max = this.calcMax(dataList);
+          console.log("max value", max);
+          this.lineOption.yAxis.max = parseInt(max * 1.1);
+        })
+        .catch(res => {
+          console.log("queryTrendData failed", res);
+        });
     }
   },
   mounted() {
+    this.queryTrendData("country", "全球");
+    // this.queryTheDateData('province', '2020-1-30')
     this.queryTheDateData();
   }
 };
@@ -190,10 +221,10 @@ export default {
   width: 750px;
   height: 500px;
 }
-.treemap {
+.line {
   margin-top: 20px;
   width: 750px;
-  height: 500px;
+  height: 550px;
 }
 .title{
   font-size: 36px;

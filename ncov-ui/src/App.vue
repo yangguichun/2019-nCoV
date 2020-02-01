@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <van-tabbar v-model="active" @change="onTabChange">
-      <van-tabbar-item name="home" to="/" icon="home-o">home</van-tabbar-item>
-      <van-tabbar-item name="home2" to="/about" icon="setting-o">about</van-tabbar-item>
+      <van-tabbar-item name="home" to="/" icon="location-o">分布</van-tabbar-item>
+      <van-tabbar-item name="trend" to="/trend" icon="chart-trending-o">趋势</van-tabbar-item>
     </van-tabbar>
     <router-view />
   </div>
