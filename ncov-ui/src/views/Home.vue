@@ -53,6 +53,11 @@ export default {
       return this.$http.get(`/allareadata/${level}/${theDate}`)
         .then( res => {
           console.log('queryTheDateData success', res.data)
+          let data = res.data
+          if(data.code != 0){
+            console.log('queryTheDateData success', data.msg)
+            return
+          }
           let dataList = res.data.data
           let confirmedList = dataList.map( item =>{
             return {
@@ -71,6 +76,11 @@ export default {
       return this.$http.get(`/ncovtrend/${level}/${area}`)
         .then(response => {
           console.log('queryTrendData success', response.data);
+          let data = response.data
+          if(data.code != 0){
+            console.log('queryTrendData success', data.msg)
+            return
+          }
           let dataList = response.data.data
           this.lineOption.series[0].data = dataList.map( data =>{ return {name: data.updateTime, value: [data.updateTime, data.confirmedCount]}})
           this.lineOption.series[1].data = dataList.map( data =>{ return {name: data.updateTime, value: [data.updateTime, data.suspectedCount]}})
@@ -78,7 +88,7 @@ export default {
           this.lineOption.series[3].data = dataList.map( data =>{ return {name: data.updateTime, value: [data.updateTime, data.deadCount]}})
           let max = this.calcMax(dataList)
           console.log('max value', max)
-          this.lineOption.yAxis.max = max*1.2
+          this.lineOption.yAxis.max = parseInt(max*1.1)
         })
         .catch( res =>{
           console.log('queryTrendData failed', res)

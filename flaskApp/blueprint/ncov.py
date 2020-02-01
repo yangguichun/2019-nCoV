@@ -45,6 +45,9 @@ def getPositionList(nameList):
 def allAreaData(level, date):
     logger.info('allAreaData %s %s', level, date)
     startDate = date
+    if strToDatetime(date) > datetime.now():
+        return jsonify(code = -1, msg = "not supported error.")
+
     endDate = (strToDatetime(date) + timedelta(1)).strftime('%Y-%m-%d')
     dataList = StatisticData.query.distinct(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName).filter(and_(StatisticData.updateTime>startDate, StatisticData.updateTime<endDate)).order_by(StatisticData.countryName,StatisticData.provinceName, StatisticData.cityName, StatisticData.updateTime.desc()).all()
     if level == 'city':

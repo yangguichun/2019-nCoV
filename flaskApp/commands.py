@@ -126,6 +126,10 @@ def register_commands(app):
             logger.error('主循环异常退出, '+ str(e))
 
     @app.cli.command()
+    def cachedata():
+        pass
+    
+    @app.cli.command()
     def updatetime():
         updateUpdateTime(datetime(2020,1,29))
     
