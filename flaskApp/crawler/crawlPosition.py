@@ -9,7 +9,7 @@ import time
 def readPositionFromBaidu(name, parent):
     logger.info('读取%s %s经纬度',parent, name)
     try:
-        url = f'http://api.map.baidu.com/geocoding/v3/?address={name}&city={parent}&output=json&ak=oONGf5SiV0yEhgp0IzzZ5UHhVVi0TL6e'
+        url = f'http://api.map.baidu.com/geocoding/v3/?address={name}&city={parent}&output=json&ak=<your key>'
         # logger.info(url)
         r = requests.get(url, timeout=10)
         # logger.info('result %s', r.text)

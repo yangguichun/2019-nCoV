@@ -47,6 +47,7 @@ export default {
       coordinateSystem: 'geo',
       data: [],
       symbolSize: val => {
+        if(val[2] == 0) return 0
         let size = Math.min(val[2] / 15, 25)
         if (size < 2) size = 2
         return size;
