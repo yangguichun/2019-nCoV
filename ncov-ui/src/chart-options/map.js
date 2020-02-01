@@ -17,7 +17,7 @@ export default {
     orient: 'vertical',
     y: 'bottom',
     x: 'right',
-    data: ['pm2.5'],
+    data: ['人数'],
     textStyle: {
       color: '#fff'
     }
@@ -42,7 +42,7 @@ export default {
   },
   series: [
     {
-      name: 'pm2.5',
+      name: '人数',
       type: 'scatter',
       coordinateSystem: 'geo',
       data: [],

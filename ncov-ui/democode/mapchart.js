@@ -513,7 +513,7 @@ option = {
  },
  series : [
      {
-         name: 'pm2.5',
+         name: '人数',
          type: 'scatter',
          coordinateSystem: 'bmap',
          data: convertData(data),
