@@ -1,5 +1,5 @@
 from flaskApp.extensions import db
-from flaskApp.models import DataLogs, LatestTime, Area
+from flaskApp.models import DataLogs, LatestTime, Area, DayCaches
 from flaskApp.crawler.crawlerFromTencent import readnCoVFromTencent
 from flaskApp.crawler.crawlerAreaTencent import readnAreaFromTencent
 from flaskApp.crawler.crawlerFromIsasclin import readOverallDataFromIsaaclin, readProvinceDataFromIsaaclin
@@ -9,7 +9,7 @@ from sqlalchemy import and_, distinct, text
 
 import click
 import schedule
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 
 
@@ -125,9 +125,29 @@ def register_commands(app):
         except BaseException as e:
             logger.error('主循环异常退出, '+ str(e))
 
+    def queryOneDay(theday):
+        startDate = theday.strftime('%Y-%m-%d')
+        endDate = (theday + timedelta(1)).strftime('%Y-%m-%d')
+        logger.info('queryOneDay, %s, %s', startDate, endDate)
+        dataList = DataLogs.query.distinct(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName).filter(and_(DataLogs.updateTime>startDate, DataLogs.updateTime<endDate)).order_by(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName, DataLogs.updateTime.desc()).all()
+        logger.info('queryOneDay, count %d', len(dataList))
+        for data in dataList:
+            dayData = DayCaches(countryName=data.countryName, provinceName=data.provinceName, cityName=data.cityName, confirmedCount=data.confirmedCount, suspectedCount=data.suspectedCount, curedCount=data.curedCount, deadCount=data.deadCount)
+            dayData.updateTime = theday
+            db.session.add(dayData)
+            db.session.commit()
+        
+        
     @app.cli.command()
     def cachedata():
-        pass
+        startDate = datetime(2020,1,23,0,0,0,0)
+        endDate = datetime(2020,2,2,0,0,0,0)
+        oneDay = timedelta(1)
+        while startDate<endDate:
+            logger.info('转存%s数据', startDate)
+            queryOneDay(startDate)
+            startDate = startDate + oneDay
+
 
     @app.cli.command()
     def updatetime():

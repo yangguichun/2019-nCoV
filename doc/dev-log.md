@@ -29,3 +29,23 @@
     - 接口：获取每个省份、城市每天的增量数据
     - 接口：获取所有省份列表
     - 接口：获取所有省份，以及下面的城市树型结构
+  - 知识点
+    - 将表的数据转移到新表，insert into tablename(xxxxx) select ......
+```sql
+    insert into data_logs ("countryName",
+  "provinceName",
+  "cityName",
+  "updateTime",
+  "confirmedCount",
+  "suspectedCount",
+  "curedCount",
+  "deadCount") 
+  select "countryName",
+  "provinceName",
+  "cityName",
+  "updateTime",
+  "confirmedCount",
+  "suspectedCount",
+  "curedCount",
+  "deadCount" from data_logs2
+```
