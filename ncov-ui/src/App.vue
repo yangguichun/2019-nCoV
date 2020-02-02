@@ -4,8 +4,8 @@
       <router-view />
     </div>
     <van-tabbar v-model="active" @change="onTabChange">
-      <van-tabbar-item name="home" to="/" icon="location-o">分布</van-tabbar-item>
-      <van-tabbar-item name="trend" to="/trend" icon="chart-trending-o">趋势</van-tabbar-item>
+      <van-tabbar-item name="trend" to="/" icon="chart-trending-o">趋势</van-tabbar-item>
+      <van-tabbar-item name="distribution" to="/distribution" icon="location-o">分布</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
@@ -14,7 +14,7 @@
 export default {
   data() {
     return {
-      active: "home"
+      active: "trend"
     };
   },
   methods:{
@@ -29,7 +29,7 @@ export default {
   font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  // text-align: center;
   color: #2c3e50;
 }
 

@@ -10,13 +10,15 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource);
 
 
-import { Button,Tabbar, TabbarItem,Tag,Col, Row} from 'vant';
+import { Button,Tabbar, TabbarItem,Tag,Col, Row, Grid, GridItem} from 'vant';
 Vue.use(Button);
 Vue.use(Tabbar);
 Vue.use(TabbarItem);
 Vue.use(Tag);
 Vue.use(Col);
 Vue.use(Row);
+Vue.use(Grid);
+Vue.use(GridItem);
 
 // import ECharts from 'vue-echarts'
 // import 'echarts'

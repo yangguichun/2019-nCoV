@@ -32,31 +32,32 @@ import chinaMap from "../map-data/china.json";
 ECharts.registerMap("china", chinaMap);
 import mapOption from "../chart-options/map";
 import treeMapOption from "../chart-options/treemap";
+import {colorDict} from "../map-data/colors.json"
 import "echarts";
 
 let selectedOptionsList = {
   confirmed: {
     itemName: "confirmedCount",
     label: "确诊人数",
-    color: "rgb(255,12,39)",
+    color: colorDict.confirmed,
     sizeDevicder: 15
   },
   suspected: {
     itemName: "suspectedCount",
     label: "疑似人数",
-    color: "rgb(13,94,242)",
+    color: colorDict.suspected,
     sizeDevicder: 3
   },
   cured: {
     itemName: "curedCount",
     label: "治愈人数",
-    color: "rgb(0, 151, 15)",
+    color: colorDict.cured,
     sizeDevicder: 3
   },
   dead: {
     itemName: "deadCount",
     label: "死亡人数",
-    color: "rgb(100, 100, 100)",
+    color: colorDict.dead,
     sizeDevicder: 3
   }
 };
@@ -232,9 +233,11 @@ export default {
   font-size: 36px;
   font-weight: bold;
   padding: 20px 5px;
+  text-align: center;
 }
 .date-picker {
   margin: 15px 5px;
+  text-align: center;
   .date-val {
     display: inline-block;
     padding: 5px 10px;
@@ -242,6 +245,7 @@ export default {
 }
 .data-type {
   margin: 15px 5px;
+  text-align: center;
   .data-item {
     margin: 0 20px;
   }

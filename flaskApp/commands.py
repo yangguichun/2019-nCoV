@@ -140,8 +140,8 @@ def register_commands(app):
         
     @app.cli.command()
     def cachedata():
-        startDate = datetime(2020,1,23,0,0,0,0)
-        endDate = datetime(2020,2,2,0,0,0,0)
+        startDate = datetime(2020,2,2,0,0,0,0)
+        endDate = datetime(2020,2,3,0,0,0,0)
         oneDay = timedelta(1)
         while startDate<endDate:
             logger.info('转存%s数据', startDate)

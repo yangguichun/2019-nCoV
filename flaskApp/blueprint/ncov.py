@@ -97,30 +97,54 @@ def allAreaData(level, date):
     return jsonify(code=0, data=result)
 
 
+def getDatalogsQuery(level, name):
+    if level == 'country':
+        return DataLogs.query.filter(and_(DataLogs.countryName == name))
+    elif level == 'province':
+        return DataLogs.query.filter(and_(DataLogs.provinceName == name))
+    elif level == 'city':
+        return DataLogs.query.filter(and_(DataLogs.cityName == name))
+    else: 
+        return None
+
+def dataLogToDict(datalog):
+    if datalog:
+        return {
+            "updateTime": datalog.updateTime.strftime("%Y-%m-%d %H:%M"),
+            "confirmedCount": datalog.confirmedCount,
+            "suspectedCount": datalog.suspectedCount,
+            "curedCount": datalog.curedCount,
+            "deadCount": datalog.deadCount
+        }
+    else:
+        return {
+            "updateTime": datetime().strftime("%Y-%m-%d %H:%M"),
+            "confirmedCount": 0,
+            "suspectedCount": 0,
+            "curedCount": 0,
+            "deadCount":0         
+        }
+    
 @ncov_bp.route('/datalogs/<level>/<name>', methods=['GET'])
 def datalogs(level, name):
     logger.info('level=%s, name=%s', level, name)
     dataList = []
-    if level == 'country':
-        dataList = DataLogs.query.filter(and_(DataLogs.countryName == name)).order_by(DataLogs.updateTime).all()
-    elif level == 'province':
-        dataList = DataLogs.query.filter(and_(DataLogs.provinceName == name)).order_by(DataLogs.updateTime).all()
-    elif level == 'city':
-        dataList = DataLogs.query.filter(and_(DataLogs.cityName == name)).order_by(DataLogs.updateTime).all()
-    else:
-        return jsonify(code=-1, msg="unsupported level")
-    
-    result = []
-    for item in dataList:
-        result.append({
-            "updateTime": item.updateTime.strftime("%Y-%m-%d %H:%M"),
-            "confirmedCount": item.confirmedCount,
-            "suspectedCount": item.suspectedCount,
-            "curedCount": item.curedCount,
-            "deadCount": item.deadCount
-        })
+    query = getDatalogsQuery(level, name)
+    if not query:
+        return jsonify(code=-1, msg="param error")
+    dataList = query.order_by(DataLogs.updateTime).all()    
+    result = [dataLogToDict(item) for item in dataList]
     return jsonify(code=0, data=result)
 
+@ncov_bp.route('/realtime/<level>/<name>', methods=['GET'])
+def realtime(level, name):
+    logger.info('level=%s, name=%s', level, name)
+    dataList = []
+    query = getDatalogsQuery(level, name)
+    if not query:
+        return jsonify(code=-1, msg="param error")
+    datalog = query.order_by(DataLogs.updateTime.desc()).first()
+    return jsonify(code=0, data= dataLogToDict(datalog))
 
 # 获取每日增量数据
 @ncov_bp.route('/incrementlogs/<level>/<name>', methods=['GET'])

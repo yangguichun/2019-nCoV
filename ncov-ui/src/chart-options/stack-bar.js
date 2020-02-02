@@ -77,6 +77,9 @@ export default {
               show: true,
               position: 'top'
           },
+          itemStyle: {
+            color: 'rgba(200,0,0)'
+          },
           data: [900, 345, 393, '-', '-', 135, 178, 286, '-', '-', '-']
       },
       // {
