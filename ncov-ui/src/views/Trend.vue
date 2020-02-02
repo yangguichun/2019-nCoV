@@ -26,10 +26,28 @@
     </div>
     <div class="area-type">
       <van-radio-group v-model="radio">
-        <van-radio name="1">
+        <van-radio name="global" @click="onGlbalClick">
           <div class="area-whole">全球</div>
         </van-radio>
-        <van-radio name="2">
+        <van-radio name="province">
+          <van-field
+            readonly
+            clickable
+            label="省份"
+            :value="selectedProvince"
+            placeholder="选择省份"
+            @click="onProvinceInputClick"
+          />
+          <van-popup v-model="showProvincePicker" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="provinceColumns"
+              @cancel="showProvincePicker = false"
+              @confirm="onProvinceConfirmed"
+            />
+          </van-popup>
+        </van-radio>
+        <van-radio name="city">
           <van-field
             readonly
             clickable
@@ -45,24 +63,6 @@
               @cancel="showCityPicker = false"
               @confirm="onCityConfirmed"
               @change="onCityChanged"
-            />
-          </van-popup>
-        </van-radio>
-        <van-radio name="3">
-          <van-field
-            readonly
-            clickable
-            label="省份"
-            :value="selectedProvince"
-            placeholder="选择省份"
-            @click="onProvinceInputClick"
-          />
-          <van-popup v-model="showProvincePicker" position="bottom">
-            <van-picker
-              show-toolbar
-              :columns="provinceColumns"
-              @cancel="showProvincePicker = false"
-              @confirm="onProvinceConfirmed"
             />
           </van-popup>
         </van-radio>
@@ -91,7 +91,7 @@ export default {
   },
   data() {
     return {
-      radio: "1",
+      radio: "global",
       lineOption,
       confirmedIncBarOption: cloneDeep(dayIncBarOption),
       suspectedIncBarOption: cloneDeep(dayIncBarOption),
@@ -115,7 +115,7 @@ export default {
   computed: {
     cityColumns() {
       if (this.selectedLevel != "city") return [];
-      let provinceList = Object.keys(this.areaList)
+      let provinceList = Object.keys(this.areaList);
       let columns = [
         {
           values: Object.keys(this.areaList),
@@ -130,8 +130,8 @@ export default {
       return columns;
     },
     provinceColumns() {
-      if(this.selectedLevel != 'province') return []
-      return this.areaList
+      if (this.selectedLevel != "province") return [];
+      return this.areaList;
     }
   },
   methods: {
@@ -139,6 +139,10 @@ export default {
       this.queryReadtimeData("country", "全球").finally(() => {
         Toast.success("刷新成功...");
       });
+    },
+    onGlbalClick() {
+      this.selectedLevel = "country";
+      this.queryData(this.selectedLevel, "全球");
     },
     onCityInputClick() {
       this.selectedLevel = "city";
@@ -365,7 +369,7 @@ export default {
 .area-type {
   margin: 20px;
   .area-whole {
-    margin-left: 30px;
+    margin: 10px 10px 20px 30px;
     font-size: 24px;
     color: rgb(100, 100, 100);
   }
