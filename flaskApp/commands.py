@@ -11,7 +11,38 @@ import click
 import schedule
 from datetime import datetime, timedelta
 import time
+    
+def updateOneDayCachesLog(data):
+    updateTime = data.updateTime.strftime('%Y-%m-%d')
+    cacheLog = DayCaches.query.filter(and_(DayCaches.countryName==data.countryName, DayCaches.provinceName==data.provinceName, DayCaches.cityName==data.cityName, DayCaches.updateTime==updateTime)).first()
+    if cacheLog:
+        cacheLog.confirmedCount = data.confirmedCount
+        cacheLog.suspectedCount = data.suspectedCount
+        cacheLog.curedCount = data.curedCount
+        cacheLog.deadCount = data.deadCount
+        db.session.commit()
+    else:
+        cacheLog = DayCaches()
+        cacheLog.countryName = data.countryName
+        cacheLog.provinceName = data.provinceName
+        cacheLog.cityName = data.cityName
+        cacheLog.confirmedCount = data.confirmedCount
+        cacheLog.suspectedCount = data.suspectedCount
+        cacheLog.curedCount = data.curedCount
+        cacheLog.deadCount = data.deadCount
+        db.session.add(cacheLog)
+        db.session.commit()
 
+def updateToDayCaches(datalogList):
+    logger.info('开始更新到缓存表...')
+    try:
+        for data in datalogList:
+            updateOneDayCachesLog(data)
+    except BaseException as e:
+        logger.error('写入缓存表发生异常' + str(e))
+        return False
+    logger.info('完成缓存表更新')
+    return True
 
 def do_crawl():
     data = readnCoVFromTencent()
@@ -21,6 +52,9 @@ def do_crawl():
     try:
         logger.info('开始写入数据...')
         
+        if not updateToDayCaches(data['data']):
+            return False
+
         for item in data['data']:
             db.session.add(item)
             db.session.commit()
@@ -153,6 +187,14 @@ def register_commands(app):
     def updatetime():
         updateUpdateTime(datetime(2020,1,29))
     
+    @app.cli.command()
+    def testupdate():
+        dayLog = DayCaches.query.filter(and_(DayCaches.countryName =='全球', DayCaches.updateTime=='2020-02-02')).first()
+        # dayLog = DayCaches.query.first()
+        logger.info(dayLog.to_json())
+        dayLog.confirmedCount = 14411
+        db.session.commit()
+
     @app.cli.command()
     def testsql():
         # dataList = DataLogs.query.distinct(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName).filter(and_(DataLogs.updateTime>'2020-01-30', DataLogs.updateTime<'2020-01-31')).order_by(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName, DataLogs.updateTime.desc()).all()
