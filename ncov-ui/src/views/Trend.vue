@@ -3,8 +3,8 @@
     <div class="title">2019武汉冠状肺炎趋势</div>
     <div>
       <div class="subtitle">实时疫情</div>
-      <van-icon name="replay" @click="onRefreshRealTime"/>
-      <div class='updatetime'>更新时间 {{realTimeData.updateTime}}</div>
+      <van-icon name="replay" @click="onRefreshRealTime" />
+      <div class="updatetime">更新时间 {{realTimeData.updateTime}}</div>
     </div>
     <div class="realtime">
       <div class="real-item">
@@ -25,6 +25,23 @@
       </div>
     </div>
     <div class="area-type"></div>
+    <van-field
+      readonly
+      clickable
+      label="城市"
+      :value="selectedArea"
+      placeholder="选择城市"
+      @click="showPicker = true"
+    />
+    <van-popup v-model="showPicker" position="bottom">
+      <van-picker
+        show-toolbar
+        :columns="areaColumns"
+        @cancel="showPicker = false"
+        @confirm="onAreaConfirm"
+        @change="onAreaChange"
+      />
+    </van-popup>
     <v-chart :options="lineOption" class="line" />
     <v-chart :options="confirmedIncBarOption" class="stack-bar" />
     <v-chart :options="suspectedIncBarOption" class="stack-bar" />
@@ -34,7 +51,7 @@
 </template>
 <script>
 import cloneDeep from "lodash/cloneDeep.js";
-import { Toast } from 'vant';
+import { Toast } from "vant";
 // import moment from 'moment';
 import ECharts from "vue-echarts";
 import lineOption from "../chart-options/line";
@@ -53,34 +70,53 @@ export default {
       suspectedIncBarOption: cloneDeep(dayIncBarOption),
       curedIncBarOption: cloneDeep(dayIncBarOption),
       deadIncBarOption: cloneDeep(dayIncBarOption),
-      level: "city",
       realTimeData: {
         updateTime: moment().format("YYYY-MM-DD HH:mm"),
         confirmedCount: 0,
         suspectedCount: 0,
         curedCount: 0,
         deadCount: 0
-      }
+      },
+      selectedLevel: "",
+      selectedArea: "",
+      showPicker: false,
+      areaList: {
+        '浙江': ["杭州", "宁波", "温州", "嘉兴", "湖州"],
+        '福建': ["福州", "厦门", "莆田", "三明", "泉州"]
+      },
     };
   },
-  computed: {},
+  computed: {
+    areaColumns() {
+      let columns = [
+        {
+          values: Object.keys(this.areaList),
+          className: 'province'
+        },
+        {
+          values: this.areaList['浙江'],
+          className: 'city'
+        }
+      ]
+      return columns;
+    }
+  },
   methods: {
-    onConfirm() {
-      console.log("onConfirm");
+    onRefreshRealTime() {
+      this.queryReadtimeData("country", "全球").finally(() => {
+        Toast.success("刷新成功...");
+      });
     },
-    onSuspect() {
-      console.log("onSuspect");
+    onAreaConfirm(values) {
+      console.log('onAreaConfirm', values)
+      this.selectedLevel = 'city'
+      this.selectedArea = values[1]
+      this.queryData(this.selectedLevel, this.selectedArea)
+      this.showPicker = false
     },
-    onCured() {
-      console.log("onCured");
-    },
-    onDead() {
-      console.log("onDead");
-    },
-    onRefreshRealTime(){
-      this.queryReadtimeData("country", "全球").finally( () =>{
-        Toast.success('刷新成功...')
-      })
+    onAreaChange(picker, values){
+      console.log('onAreaChange', values)
+      picker.setColumnValues(1, this.areaList[values[0]]);
     },
     calcMax(dataList) {
       let max = dataList.reduce((prev, curr) => {
@@ -171,6 +207,20 @@ export default {
           console.log("queryReadtimeData failed", res);
         });
     },
+    queryAreasList(){
+      this.$http.get('/arealist/city')
+        .then( res =>{
+          console.log('queryAreasList success', res.data)
+          let areaList = res.data.data
+          // for(let area in areaList){
+          //   areaList[area].unshift('本省')
+          // }
+          this.areaList = areaList
+        })
+        .catch( res=>{
+          console.log('queryAreasList fail', res.data)
+        })
+    },
     updateIncStackBar(totalDataList, incDataList, options, itemName) {
       if (totalDataList.length == 0) return;
       let dateList = totalDataList.map(item => item.updateTime);
@@ -220,6 +270,7 @@ export default {
     this.curedIncBarOption.series[1].itemStyle.color = colorDict.cured;
     this.deadIncBarOption.title.text = "每日新增死亡人数";
     this.deadIncBarOption.series[1].itemStyle.color = colorDict.dead;
+    this.queryAreasList()
     this.queryData("country", "全球");
     this.queryReadtimeData("country", "全球");
   }
@@ -250,11 +301,11 @@ export default {
   text-align: left;
   margin-left: 20px;
 }
-.updatetime{
+.updatetime {
   display: inline-block;
   padding-top: 20px;
   padding-right: 30px;
-  float:right;
+  float: right;
   font-size: 25px;
   color: rgb(100, 100, 100);
   text-align: right;
@@ -291,16 +342,16 @@ export default {
       font-size: 35px;
       font-weight: bold;
     }
-    .confirmed{
-      color: rgb(255,12,39);
+    .confirmed {
+      color: rgb(255, 12, 39);
     }
-    .suspected{
-      color: rgb(13,94,242);
+    .suspected {
+      color: rgb(13, 94, 242);
     }
-    .cured{
+    .cured {
       color: rgb(0, 200, 15);
     }
-    .dead{
+    .dead {
       color: rgb(100, 100, 100);
     }
   }
