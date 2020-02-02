@@ -1,7 +1,7 @@
 from flaskApp.models import DataLogs, Area, DayCaches
 from flask import jsonify, request, render_template, Blueprint
 from flask_login import login_required, current_user
-from sqlalchemy import and_, text
+from sqlalchemy import and_, text, null
 from datetime import datetime, timedelta
 from flaskApp.utils import logger, strToDatetime
 
@@ -173,7 +173,7 @@ def queryDayLogs(level, name):
     if level == 'country':
         dataList = DayCaches.query.filter(and_(DayCaches.countryName == name)).order_by(DayCaches.updateTime).all()
     elif level == 'province':
-        dataList = DayCaches.query.filter(and_(DayCaches.provinceName == name)).order_by(DayCaches.updateTime).all()
+        dataList = DayCaches.query.filter(and_(DayCaches.provinceName == name, DayCaches.cityName == None)).order_by(DayCaches.updateTime).all()
     elif level == 'city':
         dataList = DayCaches.query.filter(and_(DayCaches.cityName == name)).order_by(DayCaches.updateTime).all()
     else:

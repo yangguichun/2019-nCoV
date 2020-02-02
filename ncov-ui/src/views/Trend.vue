@@ -24,24 +24,50 @@
         <div class="label">死亡病例</div>
       </div>
     </div>
-    <div class="area-type"></div>
-    <van-field
-      readonly
-      clickable
-      label="城市"
-      :value="selectedArea"
-      placeholder="选择城市"
-      @click="showPicker = true"
-    />
-    <van-popup v-model="showPicker" position="bottom">
-      <van-picker
-        show-toolbar
-        :columns="areaColumns"
-        @cancel="showPicker = false"
-        @confirm="onAreaConfirm"
-        @change="onAreaChange"
-      />
-    </van-popup>
+    <div class="area-type">
+      <van-radio-group v-model="radio">
+        <van-radio name="1">
+          <div class="area-whole">全球</div>
+        </van-radio>
+        <van-radio name="2">
+          <van-field
+            readonly
+            clickable
+            label="城市"
+            :value="selectedCity"
+            placeholder="选择城市"
+            @click="onCityInputClick"
+          />
+          <van-popup v-model="showCityPicker" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="cityColumns"
+              @cancel="showCityPicker = false"
+              @confirm="onCityConfirmed"
+              @change="onCityChanged"
+            />
+          </van-popup>
+        </van-radio>
+        <van-radio name="3">
+          <van-field
+            readonly
+            clickable
+            label="省份"
+            :value="selectedProvince"
+            placeholder="选择省份"
+            @click="onProvinceInputClick"
+          />
+          <van-popup v-model="showProvincePicker" position="bottom">
+            <van-picker
+              show-toolbar
+              :columns="provinceColumns"
+              @cancel="showProvincePicker = false"
+              @confirm="onProvinceConfirmed"
+            />
+          </van-popup>
+        </van-radio>
+      </van-radio-group>
+    </div>
     <v-chart :options="lineOption" class="line" />
     <v-chart :options="confirmedIncBarOption" class="stack-bar" />
     <v-chart :options="suspectedIncBarOption" class="stack-bar" />
@@ -65,6 +91,7 @@ export default {
   },
   data() {
     return {
+      radio: "1",
       lineOption,
       confirmedIncBarOption: cloneDeep(dayIncBarOption),
       suspectedIncBarOption: cloneDeep(dayIncBarOption),
@@ -78,27 +105,33 @@ export default {
         deadCount: 0
       },
       selectedLevel: "",
-      selectedArea: "",
-      showPicker: false,
-      areaList: {
-        '浙江': ["杭州", "宁波", "温州", "嘉兴", "湖州"],
-        '福建': ["福州", "厦门", "莆田", "三明", "泉州"]
-      },
+      selectedCity: "",
+      selectedProvince: "",
+      showCityPicker: false,
+      showProvincePicker: false,
+      areaList: []
     };
   },
   computed: {
-    areaColumns() {
+    cityColumns() {
+      if (this.selectedLevel != "city") return [];
+      let provinceList = Object.keys(this.areaList)
       let columns = [
         {
           values: Object.keys(this.areaList),
-          className: 'province'
+          className: "province",
+          defaultIndex: provinceList.indexOf("广东省")
         },
         {
-          values: this.areaList['浙江'],
-          className: 'city'
+          values: this.areaList["广东省"],
+          className: "city"
         }
-      ]
+      ];
       return columns;
+    },
+    provinceColumns() {
+      if(this.selectedLevel != 'province') return []
+      return this.areaList
     }
   },
   methods: {
@@ -107,15 +140,33 @@ export default {
         Toast.success("刷新成功...");
       });
     },
-    onAreaConfirm(values) {
-      console.log('onAreaConfirm', values)
-      this.selectedLevel = 'city'
-      this.selectedArea = values[1]
-      this.queryData(this.selectedLevel, this.selectedArea)
-      this.showPicker = false
+    onCityInputClick() {
+      this.selectedLevel = "city";
+      this.queryAreasList(this.selectedLevel);
+      this.showCityPicker = true;
     },
-    onAreaChange(picker, values){
-      console.log('onAreaChange', values)
+    onProvinceInputClick() {
+      console.log("onProvinceInputClick");
+      this.selectedLevel = "province";
+      this.queryAreasList(this.selectedLevel).then(() => {
+        console.log("show province picker");
+        this.showProvincePicker = true;
+      });
+    },
+    onProvinceConfirmed(value) {
+      console.log("onProvinceConfirmed", value);
+      this.selectedProvince = value;
+      this.queryData(this.selectedLevel, value);
+      this.showProvincePicker = false;
+    },
+    onCityConfirmed(values) {
+      console.log("onCityConfirmed", values);
+      this.selectedCity = values.join();
+      this.queryData(this.selectedLevel, values[1]);
+      this.showCityPicker = false;
+    },
+    onCityChanged(picker, values) {
+      console.log("onCityChanged", values);
       picker.setColumnValues(1, this.areaList[values[0]]);
     },
     calcMax(dataList) {
@@ -207,19 +258,20 @@ export default {
           console.log("queryReadtimeData failed", res);
         });
     },
-    queryAreasList(){
-      this.$http.get('/arealist/city')
-        .then( res =>{
-          console.log('queryAreasList success', res.data)
-          let areaList = res.data.data
+    queryAreasList(level) {
+      return this.$http
+        .get("/arealist/" + level)
+        .then(res => {
+          console.log("queryAreasList success", res.data);
+          let areaList = res.data.data;
           // for(let area in areaList){
           //   areaList[area].unshift('本省')
           // }
-          this.areaList = areaList
+          this.areaList = areaList;
         })
-        .catch( res=>{
-          console.log('queryAreasList fail', res.data)
-        })
+        .catch(res => {
+          console.log("queryAreasList fail", res.data);
+        });
     },
     updateIncStackBar(totalDataList, incDataList, options, itemName) {
       if (totalDataList.length == 0) return;
@@ -270,7 +322,7 @@ export default {
     this.curedIncBarOption.series[1].itemStyle.color = colorDict.cured;
     this.deadIncBarOption.title.text = "每日新增死亡人数";
     this.deadIncBarOption.series[1].itemStyle.color = colorDict.dead;
-    this.queryAreasList()
+    // this.queryAreasList(this.selectedLevel);
     this.queryData("country", "全球");
     this.queryReadtimeData("country", "全球");
   }
@@ -310,11 +362,12 @@ export default {
   color: rgb(100, 100, 100);
   text-align: right;
 }
-.date-picker {
-  margin: 15px 5px;
-  .date-val {
-    display: inline-block;
-    padding: 5px 10px;
+.area-type {
+  margin: 20px;
+  .area-whole {
+    margin-left: 30px;
+    font-size: 24px;
+    color: rgb(100, 100, 100);
   }
 }
 .data-type {

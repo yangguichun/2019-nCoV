@@ -10,7 +10,7 @@ import VueResource from 'vue-resource'
 Vue.use(VueResource);
 
 
-import { Button,Tabbar, TabbarItem,Tag, Col, Row, Grid, GridItem, Icon, Toast, Picker, Field, Popup} from 'vant';
+import { Button,Tabbar, TabbarItem,Tag, Col, Row, Grid, GridItem, Icon, Toast, Picker, Field, Popup, RadioGroup, Radio} from 'vant';
 Vue.use(Button);
 Vue.use(Tabbar);
 Vue.use(TabbarItem);
@@ -24,6 +24,8 @@ Vue.use(Toast);
 Vue.use(Picker);
 Vue.use(Field);
 Vue.use(Popup);
+Vue.use(Radio);
+Vue.use(RadioGroup);
 
 // import ECharts from 'vue-echarts'
 // import 'echarts'
