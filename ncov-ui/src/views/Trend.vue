@@ -1,32 +1,27 @@
 <template>
   <div>
-    <div class="title">2020肺炎时间趋势</div>
-    <!-- <div class="data-type">
-      <van-tag round class="data-item" type="danger" @click="onConfirm">确诊</van-tag>
-      <van-tag round class="data-item" type="primary" @click="onSuspect">疑似</van-tag>
-      <van-tag round class="data-item" type="success" @click="onCured">治愈</van-tag>
-      <van-tag round class="data-item" @click="onDead">死亡</van-tag>
-    </div>-->
+    <div class="title">2019武汉冠状肺炎趋势</div>
     <div>
       <div class="subtitle">实时疫情</div>
-      <div class='updatetime'>更新时间 2020-2-2 10:00</div>
+      <van-icon name="replay" @click="onRefreshRealTime"/>
+      <div class='updatetime'>更新时间 {{realTimeData.updateTime}}</div>
     </div>
     <div class="realtime">
       <div class="real-item">
-        <div class="val">14415</div>
+        <div class="val confirmed">{{realTimeData.confirmedCount}}</div>
         <div class="label">确诊病例</div>
       </div>
       <div class="real-item">
-        <div class="val">14415</div>
-        <div class="label">确诊病例</div>
+        <div class="val suspected">{{realTimeData.suspectedCount}}</div>
+        <div class="label">疑似病例</div>
       </div>
       <div class="real-item">
-        <div class="val">14415</div>
-        <div class="label">确诊病例</div>
+        <div class="val cured">{{realTimeData.curedCount}}</div>
+        <div class="label">治愈病例</div>
       </div>
       <div class="real-item">
-        <div class="val">14415</div>
-        <div class="label">确诊病例</div>
+        <div class="val dead">{{realTimeData.deadCount}}</div>
+        <div class="label">死亡病例</div>
       </div>
     </div>
     <div class="area-type"></div>
@@ -80,6 +75,9 @@ export default {
     },
     onDead() {
       console.log("onDead");
+    },
+    onRefreshRealTime(){
+      this.queryReadtimeData()
     },
     calcMax(dataList) {
       let max = dataList.reduce((prev, curr) => {
@@ -164,7 +162,7 @@ export default {
         .get(`/realtime/${level}/${area}`)
         .then(response => {
           console.log("queryReadtimeData success", response.data);
-          this.realTimeData = response.data;
+          this.realTimeData = response.data.data;
         })
         .catch(res => {
           console.log("queryReadtimeData failed", res);
@@ -272,23 +270,35 @@ export default {
   }
 }
 .label {
+  padding-top: 10px;
   color: rgb(100, 100, 100);
   font-size: 24px;
 }
 .realtime {
   border-radius: 20px;
   background-color: rgb(230, 230, 230);
+  padding: 25px 0 10px 0;
   margin: 5px 20px;
   text-align: center;
   .real-item {
     display: inline-block;
-    padding-top: 25px;
     width: 150px;
     height: 100px;
     .val {
-      color: red;
       font-size: 35px;
       font-weight: bold;
+    }
+    .confirmed{
+      color: rgb(255,12,39);
+    }
+    .suspected{
+      color: rgb(13,94,242);
+    }
+    .cured{
+      color: rgb(0, 200, 15);
+    }
+    .dead{
+      color: rgb(100, 100, 100);
     }
   }
 }
