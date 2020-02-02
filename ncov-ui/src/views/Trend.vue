@@ -34,6 +34,7 @@
 </template>
 <script>
 import cloneDeep from "lodash/cloneDeep.js";
+import { Toast } from 'vant';
 // import moment from 'moment';
 import ECharts from "vue-echarts";
 import lineOption from "../chart-options/line";
@@ -77,7 +78,9 @@ export default {
       console.log("onDead");
     },
     onRefreshRealTime(){
-      this.queryReadtimeData()
+      this.queryReadtimeData("country", "全球").finally( () =>{
+        Toast.success('刷新成功...')
+      })
     },
     calcMax(dataList) {
       let max = dataList.reduce((prev, curr) => {
