@@ -370,8 +370,8 @@ export default {
   margin: 20px;
   .area-whole {
     margin: 10px 10px 20px 30px;
-    font-size: 24px;
-    color: rgb(100, 100, 100);
+    font-size: 28px;
+    color: rgb(50, 50, 50);
   }
 }
 .data-type {
