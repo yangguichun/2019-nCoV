@@ -25,7 +25,7 @@ export default {
   geo: {
     map: 'china',
     silent:true,
-    roam: true,
+    roam: 'scale',
     zoom: 1.2,
     label: {
       emphasis: {
