@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="title">2019武汉冠状肺炎趋势</div>
+    <div class="title">2019新冠肺炎趋势</div>
     <div>
       <div class="subtitle">实时疫情</div>
       <van-icon name="replay" @click="onRefreshRealTime" />

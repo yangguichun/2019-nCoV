@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="title">2020肺炎分布</div>
+    <div class="title">2020新冠肺炎分布</div>
     <div class="date-picker">
       <van-button type="primary" size="small" @click="onPrevious">前一天</van-button>
       <div class="date-val">{{theDateStr}}</div>
