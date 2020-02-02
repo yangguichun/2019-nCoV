@@ -1,4 +1,7 @@
 module.exports = {
+  publicPath: process.env.NODE_ENV === 'production' ? '/static' : '',
+  outputDir: process.env.NODE_ENV === 'production' ? '../static' : 'dist',
+  indexPath: process.env.NODE_ENV === 'production' ? '../templates/index.html' : 'index.html',
   transpileDependencies: [
     'vue-echarts',
     'resize-detector'
