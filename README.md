@@ -1,12 +1,33 @@
 ### 概述
 主要包括两个页面
-- 首页，显示肺炎的分布
+- 趋势，默认显示整体的数据，包括总量的趋势，以及确诊、疑似、治愈、死亡的每日增量；
+  - 可以选择查询某个省份或者某个城市的趋势数据
+![trend page](/doc/trend.png)
+- 分布，显示肺炎的分布
   - 可以查询历史上每一天的数据
   - 可以选择显示省份还是城市的数据
   - 可以选择数据类型：确诊、治愈还是死亡
-![home page](/doc/home.jpg)
-- 趋势，显示指定区域的相关数据的历史走势，还在开发中
+![distribute page](/doc/distribute.jpg)
 
+### 运行环境
+- python
+    - flask
+    - flask-sqlalchemy
+    - request
+    - beautiful soap
+- 数据库 postgresql
+
+### 使用说明
+- 安装好postgresql
+  - 创建名字为 feiyan 的数据库
+- 在项目目录下运行如下命令
+```shell
+pip install pipenv
+pipenv install
+pipenv shell
+flask run
+
+```
 
 ### 参考资料
 - 数据抓取，参考[这里](https://github.com/BlankerL/DXY-2019-nCoV-Crawler)
