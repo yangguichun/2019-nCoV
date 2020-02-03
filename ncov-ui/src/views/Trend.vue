@@ -10,14 +10,18 @@
           <div class="area-whole">全球</div>
         </van-radio>
         <van-radio name="province">
-          <van-field
+          <!-- <van-field
             readonly
             clickable
             label="省份"
             :value="selectedProvince"
             placeholder="选择省份"
             @click="onProvinceInputClick"
-          />
+          />-->
+          <div class="area-cell" @click="onProvinceInputClick">
+            <div class="label">省份</div>
+            <div class="area-name">{{selectedProvince}}</div>
+          </div>
           <van-popup v-model="showProvincePicker" position="bottom">
             <van-picker
               show-toolbar
@@ -28,14 +32,19 @@
           </van-popup>
         </van-radio>
         <van-radio name="city">
-          <van-field
+          <!-- <van-field
             readonly
             clickable
             label="城市"
             :value="selectedCity"
             placeholder="选择城市"
             @click="onCityInputClick"
-          />
+          />-->
+          <div class="area-cell" @click="onCityInputClick">
+            <div class="label">城市</div>
+            <div class="area-name">{{selectedCity}}</div>
+          </div>
+
           <van-popup v-model="showCityPicker" position="bottom">
             <van-picker
               show-toolbar
@@ -86,7 +95,8 @@
         </div>
       </div>
     </div>
-    <v-chart :options="lineOption" class="line" />
+    <v-chart :options="confirmedLineOption" class="line" />
+    <v-chart :options="curedLineOption" class="line" />
     <v-chart :options="confirmedIncBarOption" class="stack-bar" />
     <v-chart :options="suspectedIncBarOption" class="stack-bar" />
     <v-chart :options="curedIncBarOption" class="stack-bar" />
@@ -108,7 +118,7 @@ import "echarts/lib/component/tooltip";
 
 import lineOption from "../chart-options/line";
 import dayIncBarOption from "../chart-options/stack-bar";
-import { colorDict, colorList } from "../map-data/colors.json";
+import { colorDict } from "../map-data/colors.json";
 import moment from "moment";
 
 export default {
@@ -118,7 +128,8 @@ export default {
   data() {
     return {
       radio: "global",
-      lineOption,
+      confirmedLineOption: cloneDeep(lineOption),
+      curedLineOption: cloneDeep(lineOption),
       confirmedIncBarOption: cloneDeep(dayIncBarOption),
       suspectedIncBarOption: cloneDeep(dayIncBarOption),
       curedIncBarOption: cloneDeep(dayIncBarOption),
@@ -138,8 +149,8 @@ export default {
       },
       selectedLevel: "country",
       selectedArea: "全球",
-      selectedCity: "",
-      selectedProvince: "",
+      selectedCity: "选择城市",
+      selectedProvince: "选择省份",
       showCityPicker: false,
       showProvincePicker: false,
       areaList: [],
@@ -161,9 +172,9 @@ export default {
     },
     onCityInputClick() {
       this.selectedLevel = "city";
-      if(this.cityColumns.length > 0){
-        this.showCityPicker = true
-        return 
+      if (this.cityColumns.length > 0) {
+        this.showCityPicker = true;
+        return;
       }
       this.queryAreasList(this.selectedLevel).then(res => {
         console.log("show city picker");
@@ -174,9 +185,9 @@ export default {
     onProvinceInputClick() {
       console.log("onProvinceInputClick");
       this.selectedLevel = "province";
-      if(this.provinceColumns.length > 0){
-        this.showProvincePicker = true
-        return
+      if (this.provinceColumns.length > 0) {
+        this.showProvincePicker = true;
+        return;
       }
       this.queryAreasList(this.selectedLevel).then(res => {
         console.log("show province picker");
@@ -198,12 +209,20 @@ export default {
       this.queryData();
       this.showCityPicker = false;
     },
-    calcMax(dataList) {
+    calcConfirmedMax(dataList) {
       let max = dataList.reduce((prev, curr) => {
         return Math.max(
           prev,
           curr.confirmedCount,
           curr.suspectedCount,
+        );
+      }, 0);
+      return max;
+    },
+    calcCuredMax(dataList) {
+      let max = dataList.reduce((prev, curr) => {
+        return Math.max(
+          prev,
           curr.curedCount,
           curr.deadCount
         );
@@ -211,34 +230,34 @@ export default {
       return max;
     },
     updateLineTrend(dataList) {
-      this.lineOption.series[0].data = dataList.map(data => {
+      this.confirmedLineOption.series[0].data = dataList.map(data => {
         return {
           name: data.updateTime,
           value: [data.updateTime, data.confirmedCount]
         };
       });
-      this.lineOption.series[0];
-      this.lineOption.series[1].data = dataList.map(data => {
+      this.confirmedLineOption.series[1].data = dataList.map(data => {
         return {
           name: data.updateTime,
           value: [data.updateTime, data.suspectedCount]
         };
       });
-      this.lineOption.series[2].data = dataList.map(data => {
+      this.curedLineOption.series[0].data = dataList.map(data => {
         return {
           name: data.updateTime,
           value: [data.updateTime, data.curedCount]
         };
       });
-      this.lineOption.series[3].data = dataList.map(data => {
+      this.curedLineOption.series[1].data = dataList.map(data => {
         return {
           name: data.updateTime,
           value: [data.updateTime, data.deadCount]
         };
       });
-      let max = this.calcMax(dataList);
-      console.log("max value", max);
-      this.lineOption.yAxis.max = parseInt(max * 1.1);
+      let max = this.calcConfirmedMax(dataList);
+      this.confirmedLineOption.yAxis.max = parseInt(max * 1.1);
+      max = this.calcCuredMax(dataList);
+      this.curedLineOption.yAxis.max = parseInt(max * 1.1);
     },
     queryDayLogs(level, area) {
       return this.$http
@@ -361,7 +380,13 @@ export default {
     }
   },
   mounted() {
-    this.lineOption.color = colorList;
+    this.confirmedLineOption.color = [colorDict.confirmed, colorDict.suspected];
+    this.confirmedLineOption.title.text = '确诊与疑似总数'
+    this.curedLineOption.color = [colorDict.cured, colorDict.dead];
+    this.curedLineOption.series[0].name = '治愈'
+    this.curedLineOption.series[1].name = '死亡'
+    this.curedLineOption.title.text = '治愈与死亡总数'
+
     this.confirmedIncBarOption.title.text = "每日新增确诊人数";
     this.confirmedIncBarOption.series[1].itemStyle.color = colorDict.confirmed;
     this.suspectedIncBarOption.title.text = "每日新增疑似人数";
@@ -379,12 +404,12 @@ export default {
 .line {
   margin-top: 20px;
   width: 750px;
-  height: 550px;
+  height: 450px;
 }
 .stack-bar {
   margin-top: 15px;
   width: 750px;
-  height: 500px;
+  height: 450px;
 }
 .title {
   font-size: 36px;
@@ -396,7 +421,7 @@ export default {
   display: inline-block;
   font-size: 32px;
   font-weight: bold;
-  padding: 20px 5px;
+  padding: 10px 5px;
   text-align: left;
   margin-left: 20px;
 }
@@ -410,11 +435,27 @@ export default {
   text-align: right;
 }
 .area-type {
-  margin: 20px;
+  margin: 10px 10px 10px 50px;
   .area-whole {
-    margin: 10px 10px 20px 30px;
+    margin: 5px 10px 5px 30px;
     font-size: 28px;
+    font-weight: 400;
     color: rgb(50, 50, 50);
+  }
+  .area-cell {
+    margin: 5px 10px 5px 30px;
+    .label {
+      display: inline-block;
+      font-size: 28px;
+      font-weight: 400;
+      color: rgb(50, 50, 50);
+    }
+    .area-name {
+      margin-left: 30px;
+      display: inline-block;
+      font-size: 28px;
+      color: rgb(120, 120, 120);
+    }
   }
 }
 .data-type {
@@ -456,7 +497,7 @@ export default {
       color: rgb(255, 12, 39);
     }
     .suspected {
-      color: rgb(255,127,39);
+      color: rgb(255, 127, 39);
     }
     .cured {
       color: rgb(0, 200, 15);

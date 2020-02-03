@@ -31,7 +31,8 @@ export default {
       fontSize: 12
     },
     // left: 'auto',
-    top: "5%"
+    top: "5%",
+    right: "5%"
   },
   grid: {
     show: true,
@@ -70,17 +71,17 @@ export default {
       hoverAnimation: false,
       data: []
     },
-    {
-      name: "治愈",
-      type: "line",
-      hoverAnimation: false,
-      data: []
-    },
-    {
-      name: "死亡",
-      type: "line",
-      hoverAnimation: false,
-      data: []
-    }
+    // {
+    //   name: "治愈",
+    //   type: "line",
+    //   hoverAnimation: false,
+    //   data: []
+    // },
+    // {
+    //   name: "死亡",
+    //   type: "line",
+    //   hoverAnimation: false,
+    //   data: []
+    // }
   ]
 }

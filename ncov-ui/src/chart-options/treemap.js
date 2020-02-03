@@ -31,6 +31,7 @@ export default {
   tooltip: {
     show: true,
     formatter: function (info) {
+      console.log('treemap formatter', info)
       var value = info.value;
       var treePathInfo = info.treePathInfo;
       var treePath = [];
@@ -40,7 +41,8 @@ export default {
       }
       let res = [
         '<div class="tooltip-title">' + formatUtil.encodeHTML(treePath.join('/')) + '</div>',
-        '人数 ' + formatUtil.addCommas(value),
+        '人数 ' + formatUtil.addCommas(value) +'<br>',
+        '比例 ' + (value/info.data.total*100).toFixed(0) + '%'
       ].join('');
       return res;
     }

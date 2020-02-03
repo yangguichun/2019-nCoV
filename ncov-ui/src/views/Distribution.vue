@@ -196,24 +196,20 @@ export default {
             return;
           }
           let dataList = res.data.data;
+          let total = 0
           let formatedMapDataList = dataList.map(item => {
+            total += item[this.selectedOption.itemName]
             return {
               name: item.name,
               value: [item.lng, item.lat, item[this.selectedOption.itemName]]
             };
           });
           let formatedMapTreeData = dataList.map(item => {
-            if (item[this.selectedOption.itemName] > 0) {
-              console.log(
-                "大于1的数量",
-                item.name,
-                item[this.selectedOption.itemName]
-              );
-            }
             return {
               name: item.name,
               path: item.name,
-              value: item[this.selectedOption.itemName]
+              value: item[this.selectedOption.itemName],
+              total: total
             };
           });
 
