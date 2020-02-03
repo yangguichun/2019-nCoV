@@ -161,6 +161,10 @@ export default {
     },
     onCityInputClick() {
       this.selectedLevel = "city";
+      if(this.cityColumns.length > 0){
+        this.showCityPicker = true
+        return 
+      }
       this.queryAreasList(this.selectedLevel).then(res => {
         console.log("show city picker");
         this.cityColumns = res;
@@ -170,6 +174,10 @@ export default {
     onProvinceInputClick() {
       console.log("onProvinceInputClick");
       this.selectedLevel = "province";
+      if(this.provinceColumns.length > 0){
+        this.showProvincePicker = true
+        return
+      }
       this.queryAreasList(this.selectedLevel).then(res => {
         console.log("show province picker");
         this.provinceColumns = res;
