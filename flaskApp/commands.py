@@ -16,14 +16,14 @@ def updateOneDayCachesLog(data):
     updateTime = data.updateTime.strftime('%Y-%m-%d')
     cacheLog = DayCaches.query.filter(and_(DayCaches.countryName==data.countryName, DayCaches.provinceName==data.provinceName, DayCaches.cityName==data.cityName, DayCaches.updateTime==updateTime)).first()
     if cacheLog:
-        logger.info('updateOneDayCachesLog update, %s', cacheLog.to_json())
+        # logger.info('updateOneDayCachesLog update, %s', cacheLog.to_json())
         cacheLog.confirmedCount = data.confirmedCount
         cacheLog.suspectedCount = data.suspectedCount
         cacheLog.curedCount = data.curedCount
         cacheLog.deadCount = data.deadCount
         db.session.commit()
     else:
-        logger.info('updateOneDayCachesLog insert, %s', cacheLog)
+        # logger.info('updateOneDayCachesLog insert, %s', cacheLog)
         cacheLog = DayCaches()
         cacheLog.updateTime = updateTime
         cacheLog.countryName = data.countryName

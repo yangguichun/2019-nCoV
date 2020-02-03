@@ -1,9 +1,10 @@
-from flaskApp.models import DataLogs, Area, DayCaches
+from flaskApp.models import DataLogs, Area, DayCaches, ApiLog
 from flask import jsonify, request, render_template, Blueprint
 from flask_login import login_required, current_user
 from sqlalchemy import and_, text, null
 from datetime import datetime, timedelta
 from flaskApp.utils import logger, strToDatetime
+from flaskApp.extensions import db
 
 ncov_bp = Blueprint('ncov', __name__)
 
@@ -14,7 +15,24 @@ def index():
     return render_template('index.html')
 
 
+@ncov_bp.before_request
+def beforeRequest():
+    try:
+        paths = request.path.split('/')
+        if len(paths) <=2:
+            logger.info('beforeRequest, illigle path, %s', paths)
+            return
 
+        logTime = datetime.now()
+        params = ' '.join(paths[2:])       
+        aLog = ApiLog(logTime = logTime, api=paths[1], params=params, remoteAddr=request.remote_addr)
+        db.session.add(aLog)
+        db.session.commit()
+
+    except BaseException as e:
+        logger.error('beforeRequest 异常, %s, %s', request, str(e))
+        return
+        
 def getPositionList(nameList):
     nameStr =  ','.join(nameList)
     sql = f'name in ( {nameStr} )' 

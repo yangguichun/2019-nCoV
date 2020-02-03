@@ -40,6 +40,13 @@ class DataLogs(db.Model):
         #     del dict["_sa_instance_state"]
         return dict
 
+class ApiLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    logTime = db.Column(db.DateTime, index=True)
+    api = db.Column(db.Text)
+    params = db.Column(db.Text)
+    remoteAddr = db.Column(db.Text)
+
 class DayCaches(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     # 不能为空，如果只有国家名称，没有省市的名称，则表示国家的数据
