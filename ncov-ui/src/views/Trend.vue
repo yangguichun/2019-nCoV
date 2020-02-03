@@ -70,7 +70,7 @@
         </div>
       </div>
       <div class="real-item">
-        <div class="val cured">+{{realTimeData.curedCount}}</div>
+        <div class="val cured">{{realTimeData.curedCount}}</div>
         <div class="label">治愈病例</div>
         <div>
           <div class="sub-label">今日</div>
