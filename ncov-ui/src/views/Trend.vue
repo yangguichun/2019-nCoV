@@ -2,31 +2,7 @@
   <div>
     <div class="title">2019新冠肺炎趋势</div>
     <div>
-      <div class="subtitle">实时疫情</div>
-      <van-icon name="replay" @click="onRefreshRealTime" />
-      <div class="updatetime">更新时间 {{realTimeData.updateTime}}</div>
-    </div>
-    <div class="realtime">
-      <div class="real-item">
-        <div class="val confirmed">{{realTimeData.confirmedCount}}</div>
-        <div class="label">确诊病例</div>
-        <div class="inc confirmed">+{{incrementData.confirmedCount}}</div>
-      </div>
-      <div class="real-item">
-        <div class="val suspected">{{realTimeData.suspectedCount}}</div>
-        <div class="label">疑似病例</div>
-        <div class="inc suspected">+{{incrementData.suspectedCount}}</div>
-      </div>
-      <div class="real-item">
-        <div class="val cured">+{{realTimeData.curedCount}}</div>
-        <div class="label">治愈病例</div>
-        <div class="inc cured">+{{incrementData.curedCount}}</div>
-      </div>
-      <div class="real-item">
-        <div class="val dead">{{realTimeData.deadCount}}</div>
-        <div class="label">死亡病例</div>
-        <div class="inc dead">+{{incrementData.deadCount}}</div>
-      </div>
+      <div class="subtitle">区域范围</div>
     </div>
     <div class="area-type">
       <van-radio-group v-model="radio">
@@ -70,6 +46,45 @@
           </van-popup>
         </van-radio>
       </van-radio-group>
+    </div>
+    <div>
+      <div class="subtitle">实时疫情</div>
+      <van-icon name="replay" @click="onRefreshRealTime" />
+      <div class="updatetime">更新时间 {{realTimeData.updateTime}}</div>
+    </div>
+    <div class="realtime">
+      <div class="real-item">
+        <div class="val confirmed">{{realTimeData.confirmedCount}}</div>
+        <div class="label">确诊病例</div>
+        <div>
+          <div class="sub-label">今日</div>
+          <div class="inc confirmed">+{{incrementData.confirmedCount}}</div>
+        </div>
+      </div>
+      <div class="real-item">
+        <div class="val suspected">{{realTimeData.suspectedCount}}</div>
+        <div class="label">疑似病例</div>
+        <div>
+          <div class="sub-label">今日</div>
+          <div class="inc suspected">+{{incrementData.suspectedCount}}</div>
+        </div>
+      </div>
+      <div class="real-item">
+        <div class="val cured">+{{realTimeData.curedCount}}</div>
+        <div class="label">治愈病例</div>
+        <div>
+          <div class="sub-label">今日</div>
+          <div class="inc cured">+{{incrementData.curedCount}}</div>
+        </div>
+      </div>
+      <div class="real-item">
+        <div class="val dead">{{realTimeData.deadCount}}</div>
+        <div class="label">死亡病例</div>
+        <div>
+          <div class="sub-label">今日</div>
+          <div class="inc dead">+{{incrementData.deadCount}}</div>
+        </div>
+      </div>
     </div>
     <v-chart :options="lineOption" class="line" />
     <v-chart :options="confirmedIncBarOption" class="stack-bar" />
@@ -115,61 +130,64 @@ export default {
         curedCount: 0,
         deadCount: 0
       },
-      incrementData:{
+      incrementData: {
         confirmedCount: 0,
         suspectedCount: 0,
         curedCount: 0,
         deadCount: 0
       },
       selectedLevel: "country",
+      selectedArea: "全球",
       selectedCity: "",
       selectedProvince: "",
       showCityPicker: false,
       showProvincePicker: false,
       areaList: [],
       cityColumns: [],
-      provinceColumns: [],
+      provinceColumns: []
     };
   },
-  computed: {
-  },
+  computed: {},
   methods: {
     onRefreshRealTime() {
-      this.queryReadtimeData("country", "全球").finally(() => {
+      this.queryData().finally(() => {
         Toast.success("刷新成功...");
       });
     },
     onGlobalClick() {
       this.selectedLevel = "country";
-      this.queryData(this.selectedLevel, "全球");
+      this.selectedArea = "全球";
+      this.queryData();
     },
     onCityInputClick() {
       this.selectedLevel = "city";
-      this.queryAreasList(this.selectedLevel).then( res=>{
+      this.queryAreasList(this.selectedLevel).then(res => {
         console.log("show city picker");
-        this.cityColumns = res
+        this.cityColumns = res;
         this.showCityPicker = true;
-      })
+      });
     },
     onProvinceInputClick() {
       console.log("onProvinceInputClick");
       this.selectedLevel = "province";
-      this.queryAreasList(this.selectedLevel).then((res) => {
+      this.queryAreasList(this.selectedLevel).then(res => {
         console.log("show province picker");
-        this.provinceColumns = res
+        this.provinceColumns = res;
         this.showProvincePicker = true;
       });
     },
     onProvinceConfirmed(value) {
       console.log("onProvinceConfirmed", value);
       this.selectedProvince = value.text;
-      this.queryData(this.selectedLevel, this.selectedProvince);
+      this.selectedArea = value.text;
+      this.queryData();
       this.showProvincePicker = false;
     },
     onCityConfirmed(values) {
       console.log("onCityConfirmed", values);
       this.selectedCity = values.join();
-      this.queryData(this.selectedLevel, values[1]);
+      this.selectedArea = values[1];
+      this.queryData();
       this.showCityPicker = false;
     },
     calcMax(dataList) {
@@ -232,11 +250,11 @@ export default {
           console.log("queryDayLogs failed", res);
         });
     },
-    updateDataIncrement(dataList){
-      for(let item of dataList){
-        if(item.updateTime == moment().format('YYYY-MM-DD')){
-          this.incrementData = item
-          break
+    updateDataIncrement(dataList) {
+      for (let item of dataList) {
+        if (item.updateTime == moment().format("YYYY-MM-DD")) {
+          this.incrementData = item;
+          break;
         }
       }
     },
@@ -252,7 +270,7 @@ export default {
           }
           let dataList = response.data.data;
           // this.updateLineTrend(dataList);
-          this.updateDataIncrement(dataList)
+          this.updateDataIncrement(dataList);
           return dataList;
         })
         .catch(res => {
@@ -295,26 +313,39 @@ export default {
       options.series[0].data = yDataList1;
       options.series[1].data = yDataList2;
     },
-    queryData(level, area) {
-      Promise.all([
-        this.queryDayLogs(level, area),
-        this.queryIncrementLogs(level, area)
+    queryData() {
+      return Promise.all([
+        this.queryDayLogs(this.selectedLevel, this.selectedArea),
+        this.queryIncrementLogs(this.selectedLevel, this.selectedArea),
+        this.queryReadtimeData(this.selectedLevel, this.selectedArea)
       ])
         .then(res => {
           console.log("queryData success", res);
 
           this.updateIncStackBar(
-            ...res,
+            res[0],
+            res[1],
             this.confirmedIncBarOption,
             "confirmedCount"
           );
           this.updateIncStackBar(
-            ...res,
+            res[0],
+            res[1],
             this.suspectedIncBarOption,
             "suspectedCount"
           );
-          this.updateIncStackBar(...res, this.curedIncBarOption, "curedCount");
-          this.updateIncStackBar(...res, this.deadIncBarOption, "deadCount");
+          this.updateIncStackBar(
+            res[0],
+            res[1],
+            this.curedIncBarOption,
+            "curedCount"
+          );
+          this.updateIncStackBar(
+            res[0],
+            res[1],
+            this.deadIncBarOption,
+            "deadCount"
+          );
         })
         .catch(res => {
           console.log("queryData failed", res);
@@ -332,8 +363,7 @@ export default {
     this.deadIncBarOption.title.text = "每日新增死亡人数";
     this.deadIncBarOption.series[1].itemStyle.color = colorDict.dead;
     // this.queryAreasList(this.selectedLevel);
-    this.queryData("country", "全球");
-    this.queryReadtimeData("country", "全球");
+    this.queryData();
   }
 };
 </script>
@@ -388,7 +418,7 @@ export default {
 .label {
   padding-top: 10px;
   color: rgb(70, 70, 70);
-  font-size: 24px;
+  font-size: 28px;
   font-weight: bold;
 }
 .realtime {
@@ -402,17 +432,23 @@ export default {
     width: 150px;
     height: 100px;
     .val {
-      font-size: 35px;
+      font-size: 38px;
       font-weight: bold;
     }
     .inc {
-      font-size: 28px;
+      font-size: 20px;
+      display: inline-block;
+    }
+    .sub-label {
+      font-size: 20px;
+      color: rgb(100, 100, 100);
+      display: inline-block;
     }
     .confirmed {
       color: rgb(255, 12, 39);
     }
     .suspected {
-      color: rgb(13, 94, 242);
+      color: rgb(255,127,39);
     }
     .cured {
       color: rgb(0, 200, 15);

@@ -134,7 +134,7 @@ export default {
     // onSuspect() {
     //   console.log("onSuspect");
     //   this.treeMapOption.series[0].name = this.mapOption.title.text = `疑似人数(${this.level})`;
-    //   this.mapOption.series[0].itemStyle.color = "rgb(13,94,242)";
+    //   this.mapOption.series[0].itemStyle.color = "rgb(255,127,39)";
     //   this.mapOption.series[0].symbolSize = val => {
     //     if (val[2] == 0) return 0;
     //     let size = Math.min(val[2] / 15, 25);

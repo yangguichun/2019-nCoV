@@ -1,13 +1,13 @@
 {
   "colorDict": {
     "confirmed": "rgb(255,12,39)",
-    "suspected": "rgb(13,94,242)",
+    "suspected": "rgb(255,127,39)",
     "cured": "rgb(0, 200, 15)",
     "dead": "rgb(100, 100, 100)"
   },
   "colorList": [
     "rgb(255,12,39)",
-    "rgb(13,94,242)",
+    "rgb(255,127,39)",
     "rgb(0, 200, 15)",
     "rgb(100, 100, 100)"
   ]
