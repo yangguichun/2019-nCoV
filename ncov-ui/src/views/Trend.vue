@@ -10,18 +10,22 @@
       <div class="real-item">
         <div class="val confirmed">{{realTimeData.confirmedCount}}</div>
         <div class="label">确诊病例</div>
+        <div class="inc confirmed">+{{incrementData.confirmedCount}}</div>
       </div>
       <div class="real-item">
         <div class="val suspected">{{realTimeData.suspectedCount}}</div>
         <div class="label">疑似病例</div>
+        <div class="inc suspected">+{{incrementData.suspectedCount}}</div>
       </div>
       <div class="real-item">
-        <div class="val cured">{{realTimeData.curedCount}}</div>
+        <div class="val cured">+{{realTimeData.curedCount}}</div>
         <div class="label">治愈病例</div>
+        <div class="inc cured">+{{incrementData.curedCount}}</div>
       </div>
       <div class="real-item">
         <div class="val dead">{{realTimeData.deadCount}}</div>
         <div class="label">死亡病例</div>
+        <div class="inc dead">+{{incrementData.deadCount}}</div>
       </div>
     </div>
     <div class="area-type">
@@ -106,6 +110,12 @@ export default {
       deadIncBarOption: cloneDeep(dayIncBarOption),
       realTimeData: {
         updateTime: moment().format("YYYY-MM-DD HH:mm"),
+        confirmedCount: 0,
+        suspectedCount: 0,
+        curedCount: 0,
+        deadCount: 0
+      },
+      incrementData:{
         confirmedCount: 0,
         suspectedCount: 0,
         curedCount: 0,
@@ -222,6 +232,14 @@ export default {
           console.log("queryDayLogs failed", res);
         });
     },
+    updateDataIncrement(dataList){
+      for(let item of dataList){
+        if(item.updateTime == moment().format('YYYY-MM-DD')){
+          this.incrementData = item
+          break
+        }
+      }
+    },
     queryIncrementLogs(level, area) {
       return this.$http
         .get(`/incrementlogs/${level}/${area}`)
@@ -234,6 +252,7 @@ export default {
           }
           let dataList = response.data.data;
           // this.updateLineTrend(dataList);
+          this.updateDataIncrement(dataList)
           return dataList;
         })
         .catch(res => {
@@ -368,8 +387,9 @@ export default {
 }
 .label {
   padding-top: 10px;
-  color: rgb(100, 100, 100);
+  color: rgb(70, 70, 70);
   font-size: 24px;
+  font-weight: bold;
 }
 .realtime {
   border-radius: 20px;
@@ -384,6 +404,9 @@ export default {
     .val {
       font-size: 35px;
       font-weight: bold;
+    }
+    .inc {
+      font-size: 28px;
     }
     .confirmed {
       color: rgb(255, 12, 39);
