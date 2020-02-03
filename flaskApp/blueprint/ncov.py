@@ -32,17 +32,25 @@ def areaList(level):
         return jsonify(code=-1, msg="not supported level")
 
     def convertCity(areaList):
-        result = {}
+        resultDict = {}
+        resultList = []
         for area in areaList:
-            if area.parentName not in result:
-                result[area.parentName] = []
-            result[area.parentName].append(area.name)
-        return result
+            if area.parentName not in resultDict:
+                resultList.append({
+                    "text": area.parentName,
+                    "children": []
+                })
+                resultDict[area.parentName] = []
+            resultDict[area.parentName].append({ "text": area.name})
+        # result = [ {"text": resultDict[item["text"]]} for item in resultList]
+        for item in resultList:
+            item["children"] = resultDict[item["text"]]
+        return resultList
 
     def convertProvince(areaList):
         result = []
         for area in areaList:
-            result.append(area.name)
+            result.append({ "text": area.name})
         return result
             
     areaList = Area.query.filter(Area.level==level).all()
@@ -78,7 +86,6 @@ def allAreaData(level, date):
         return jsonify(code = -1, msg = "not supported error.")
 
     endDate = (strToDatetime(date) + timedelta(1)).strftime('%Y-%m-%d')
-    # dataList = DataLogs.query.distinct(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName).filter(and_(DataLogs.updateTime>startDate, DataLogs.updateTime<endDate)).order_by(DataLogs.countryName,DataLogs.provinceName, DataLogs.cityName, DataLogs.updateTime.desc()).all()
     dataList = DayCaches.query.filter(DayCaches.updateTime == date).all()
     if level == 'city':
         dataList = [convertCity(item) for item in dataList if item.cityName]

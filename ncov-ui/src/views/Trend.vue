@@ -26,7 +26,7 @@
     </div>
     <div class="area-type">
       <van-radio-group v-model="radio">
-        <van-radio name="global" @click="onGlbalClick">
+        <van-radio name="global" @click="onGlobalClick">
           <div class="area-whole">全球</div>
         </van-radio>
         <van-radio name="province">
@@ -62,7 +62,6 @@
               :columns="cityColumns"
               @cancel="showCityPicker = false"
               @confirm="onCityConfirmed"
-              @change="onCityChanged"
             />
           </van-popup>
         </van-radio>
@@ -80,14 +79,13 @@ import cloneDeep from "lodash/cloneDeep.js";
 import { Toast } from "vant";
 // import moment from 'moment';
 import ECharts from "vue-echarts";
-import 'echarts/lib/chart/line'
-import 'echarts/lib/chart/lines'
-import 'echarts/lib/chart/bar'
-import 'echarts/lib/component/legend'
-import 'echarts/lib/component/title'
-import 'echarts/lib/component/dataset'
-import 'echarts/lib/component/tooltip'
-
+import "echarts/lib/chart/line";
+import "echarts/lib/chart/lines";
+import "echarts/lib/chart/bar";
+import "echarts/lib/component/legend";
+import "echarts/lib/component/title";
+import "echarts/lib/component/dataset";
+import "echarts/lib/component/tooltip";
 
 import lineOption from "../chart-options/line";
 import dayIncBarOption from "../chart-options/stack-bar";
@@ -113,35 +111,17 @@ export default {
         curedCount: 0,
         deadCount: 0
       },
-      selectedLevel: "",
+      selectedLevel: "country",
       selectedCity: "",
       selectedProvince: "",
       showCityPicker: false,
       showProvincePicker: false,
-      areaList: []
+      areaList: [],
+      cityColumns: [],
+      provinceColumns: [],
     };
   },
   computed: {
-    cityColumns() {
-      if (this.selectedLevel != "city") return [];
-      let provinceList = Object.keys(this.areaList);
-      let columns = [
-        {
-          values: Object.keys(this.areaList),
-          className: "province",
-          defaultIndex: provinceList.indexOf("广东省")
-        },
-        {
-          values: this.areaList["广东省"],
-          className: "city"
-        }
-      ];
-      return columns;
-    },
-    provinceColumns() {
-      if (this.selectedLevel != "province") return [];
-      return this.areaList;
-    }
   },
   methods: {
     onRefreshRealTime() {
@@ -149,27 +129,31 @@ export default {
         Toast.success("刷新成功...");
       });
     },
-    onGlbalClick() {
+    onGlobalClick() {
       this.selectedLevel = "country";
       this.queryData(this.selectedLevel, "全球");
     },
     onCityInputClick() {
       this.selectedLevel = "city";
-      this.queryAreasList(this.selectedLevel);
-      this.showCityPicker = true;
+      this.queryAreasList(this.selectedLevel).then( res=>{
+        console.log("show city picker");
+        this.cityColumns = res
+        this.showCityPicker = true;
+      })
     },
     onProvinceInputClick() {
       console.log("onProvinceInputClick");
       this.selectedLevel = "province";
-      this.queryAreasList(this.selectedLevel).then(() => {
+      this.queryAreasList(this.selectedLevel).then((res) => {
         console.log("show province picker");
+        this.provinceColumns = res
         this.showProvincePicker = true;
       });
     },
     onProvinceConfirmed(value) {
       console.log("onProvinceConfirmed", value);
-      this.selectedProvince = value;
-      this.queryData(this.selectedLevel, value);
+      this.selectedProvince = value.text;
+      this.queryData(this.selectedLevel, this.selectedProvince);
       this.showProvincePicker = false;
     },
     onCityConfirmed(values) {
@@ -177,10 +161,6 @@ export default {
       this.selectedCity = values.join();
       this.queryData(this.selectedLevel, values[1]);
       this.showCityPicker = false;
-    },
-    onCityChanged(picker, values) {
-      console.log("onCityChanged", values);
-      picker.setColumnValues(1, this.areaList[values[0]]);
     },
     calcMax(dataList) {
       let max = dataList.reduce((prev, curr) => {
@@ -277,10 +257,7 @@ export default {
         .then(res => {
           console.log("queryAreasList success", res.data);
           let areaList = res.data.data;
-          // for(let area in areaList){
-          //   areaList[area].unshift('本省')
-          // }
-          this.areaList = areaList;
+          return areaList;
         })
         .catch(res => {
           console.log("queryAreasList fail", res.data);
