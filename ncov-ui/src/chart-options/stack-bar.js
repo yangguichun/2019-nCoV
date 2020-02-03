@@ -1,6 +1,9 @@
 export default {
   title: {
       text: '每日增量',
+      textStyle:{
+          fontSize: 15
+      },
       top:15,
       left:10
   },
@@ -30,6 +33,7 @@ export default {
     },
     // left: 'auto',
     top: "5%",
+    right: "5%",
     data: ['人数']
   },
   grid: {

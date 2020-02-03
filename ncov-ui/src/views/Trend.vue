@@ -80,6 +80,15 @@ import cloneDeep from "lodash/cloneDeep.js";
 import { Toast } from "vant";
 // import moment from 'moment';
 import ECharts from "vue-echarts";
+import 'echarts/lib/chart/line'
+import 'echarts/lib/chart/lines'
+import 'echarts/lib/chart/bar'
+import 'echarts/lib/component/legend'
+import 'echarts/lib/component/title'
+import 'echarts/lib/component/dataset'
+import 'echarts/lib/component/tooltip'
+
+
 import lineOption from "../chart-options/line";
 import dayIncBarOption from "../chart-options/stack-bar";
 import { colorDict, colorList } from "../map-data/colors.json";

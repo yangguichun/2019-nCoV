@@ -1,6 +1,11 @@
 export default {
   title: {
-    text: "总数趋势"
+    text: "总数趋势",
+    textStyle:{
+      fontSize: 15
+    },
+    left: 10,
+    top: 15,
   },
   tooltip: {
     trigger: "axis",
@@ -26,14 +31,14 @@ export default {
       fontSize: 12
     },
     // left: 'auto',
-    top: "15%"
+    top: "5%"
   },
   grid: {
     show: true,
     left: "3%",
     right: "3%",
     bottom: "0%",
-    top: "25%",
+    top: "20%",
     containLabel: true,
     borderColor: "rgba(255,255,255,1)"
   },

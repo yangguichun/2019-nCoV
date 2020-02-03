@@ -7,8 +7,8 @@ module.exports = {
     'resize-detector'
   ],
   devServer: {
-    proxy: 'http://127.0.0.1:5000'
-    // proxy: 'http://47.107.190.155',
+    // proxy: 'http://127.0.0.1:5000'
+    proxy: 'http://47.107.190.155:8081',
   },
   css: {
     loaderOptions: {

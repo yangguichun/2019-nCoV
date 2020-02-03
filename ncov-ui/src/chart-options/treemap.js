@@ -1,6 +1,4 @@
-import echarts from 'echarts'
-
-var formatUtil = echarts.format;
+import * as formatUtil from 'echarts/lib/util/format'
 
 function getLevelOption() {
   return [
@@ -31,6 +29,7 @@ export default {
   //   left: 'center'
   // },
   tooltip: {
+    show: true,
     formatter: function (info) {
       var value = info.value;
       var treePathInfo = info.treePathInfo;
@@ -39,11 +38,11 @@ export default {
       for (var i = 1; i < treePathInfo.length; i++) {
         treePath.push(treePathInfo[i].name);
       }
-
-      return [
+      let res = [
         '<div class="tooltip-title">' + formatUtil.encodeHTML(treePath.join('/')) + '</div>',
         '人数 ' + formatUtil.addCommas(value),
       ].join('');
+      return res;
     }
   },
 

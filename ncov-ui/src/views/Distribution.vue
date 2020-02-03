@@ -28,12 +28,24 @@
 <script>
 import moment from "moment";
 import ECharts from "vue-echarts";
+import 'echarts/lib/chart/scatter'
+import 'echarts/lib/chart/effectScatter'
+import 'echarts/lib/chart/treemap'
+import 'echarts/lib/chart/map'
+import 'echarts/lib/component/geo'
+import 'echarts/lib/component/legend'
+import 'echarts/lib/component/title'
+import 'echarts/lib/component/visualMap'
+import 'echarts/lib/component/dataset'
+import 'echarts/lib/component/tooltip'
+
+
 import chinaMap from "../map-data/china.json";
 ECharts.registerMap("china", chinaMap);
 import mapOption from "../chart-options/map";
 import treeMapOption from "../chart-options/treemap";
 import {colorDict} from "../map-data/colors.json"
-import "echarts";
+// import "echarts";
 
 let selectedOptionsList = {
   confirmed: {
@@ -240,11 +252,11 @@ export default {
   text-align: center;
   .date-val {
     display: inline-block;
-    padding: 5px 10px;
+    padding: 5px 30px;
   }
 }
 .data-type {
-  margin: 15px 5px;
+  margin: 25px 5px 15px 5px;
   text-align: center;
   .data-item {
     margin: 0 20px;
