@@ -13,7 +13,7 @@
 - 数据库
   - 安装postgresql
   - 创建数据库，名字为 feiyan
-  - 还原数据，在root账户下使用pg_restore导入[feiyan-db-20200202.backup](https://github.com/yangguichun/2019-wuhan-nCoV/data)，包含了从2020-1-24~2020-02-20的数据，，导入时换成具体的本地目录
+  - 还原数据，在root账户下使用pg_restore导入[feiyan-db-20200202.backup](https://github.com/yangguichun/2019-wuhan-nCoV/tree/master/data)，包含了从2020-1-24~2020-02-20的数据，，导入时换成具体的本地目录
 ```shell
 pg_restore --host=127.0.0.1 --port=5432 --username="youpguser" --dbname="feiyan" --password  --list /home/feiyan-db-20200202.backup
 ```
@@ -23,7 +23,7 @@ pg_restore --host=127.0.0.1 --port=5432 --username="youpguser" --dbname="feiyan"
   ```shell
    pip install pipenv
    ```
-  - 在项目目录下使用pipenv创建虚拟环境: pipenv install，如果创建完虚拟环境之后，无法安装相关依赖，可以在pipenv shell 之后，使用pip install 逐个安装 [Pipfile](https://github.com/yangguichun/2019-wuhan-nCoV/Pipfile)文件内的依赖
+  - 在项目目录下使用pipenv创建虚拟环境: pipenv install，如果创建完虚拟环境之后，无法安装相关依赖，可以在pipenv shell 之后，使用pip install 逐个安装 [Pipfile](https://github.com/yangguichun/2019-wuhan-nCoV/blob/master/Pipfile)文件内的依赖
   - 进入虚拟环境： pipenv shell
   - 运行爬虫: flask crawl，这样程序就会每15分钟检测一次数据是否有更新
   - 运行web服务
@@ -31,8 +31,8 @@ pg_restore --host=127.0.0.1 --port=5432 --username="youpguser" --dbname="feiyan"
   flask run --host=0.0.0.0 --port=8080
   ```
 - 前端
-  - 默认已经在[template](https://github.com/yangguichun/2019-wuhan-nCoV/template)和[static](https://github.com/yangguichun/2019-wuhan-nCoV/static)目录下编译好了最新的前端
-  - 如果要修改和测试前端代码，可以直接npm run serve来测试，默认会使用 `http://47.107.190.155:8081`上的api，可以改为你本地的api，可以在[vue.config.js](https://github.com/yangguichun/2019-wuhan-nCoV/ncov-ui/vue.config.js)中修改
+  - 默认已经在[template](https://github.com/yangguichun/2019-wuhan-nCoV/tree/master/templates)和[static](https://github.com/yangguichun/2019-wuhan-nCoV/tree/master/static)目录下编译好了最新的前端
+  - 如果要修改和测试前端代码，可以直接npm run serve来测试，默认会使用 `http://47.107.190.155:8081`上的api，可以改为你本地的api，可以在[vue.config.js](https://github.com/yangguichun/2019-wuhan-nCoV/blob/master/ncov-ui/vue.config.js)中修改
   - 修改之后运行npm run build，会生成到template和static目录下
 
 
