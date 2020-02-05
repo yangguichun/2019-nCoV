@@ -14,7 +14,7 @@ export default {
       },
       formatter: function (params) {
           console.log('formatter', params)
-          return `${params[0].name}<br/>${params[0].seriesName}: ${params[0].value}<br/>${params[1].seriesName}: ${params[1].value}`
+          return `${params[0].name}<br/>${params[0].seriesName}: ${params[0].value+params[1].value}<br/>${params[1].seriesName}: ${params[1].value}`
         //   var tar;
         //   if (params[1].value !== '-') {
         //       tar = params[1];
