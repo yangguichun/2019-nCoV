@@ -117,7 +117,11 @@ export default {
     },
     updateOptionAndQuery() {
       this.queryTheDateData().then(() => {
-        this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
+        let level = '省'
+        if(this.level == 'city'){
+          level = '城市'
+        }
+        this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${level})`;
         this.mapOption.series[0].itemStyle.color = this.selectedOption.color;
         this.mapOption.series[0].symbolSize = val => {
           if (val[2] == 0) return 0;
@@ -156,14 +160,11 @@ export default {
       this.updateOptionAndQuery();
     },
     onCity() {
-      this.level = "city";
-      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
+      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(城市)`;
       this.queryTheDateData();
     },
     onProvince() {
-      this.level = "province";
-      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
-
+      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(省)`;
       this.queryTheDateData();
     },
     calcMax(dataList) {

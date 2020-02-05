@@ -62,7 +62,6 @@ export default {
         show: true,
         fontSize: 8,
         align: 'center',
-        // formatter: '{b}'
         formatter: function(params){
           let name = params.name
           if(name.indexOf('省')> 0 || name.indexOf('市')>0 || name.indexOf('区')>=0){
