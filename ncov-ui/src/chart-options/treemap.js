@@ -57,8 +57,10 @@ export default {
       left:5,
       right:5,
       bottom:5,
+      drillDownIcon: '',
       label: {
         show: true,
+        fontSize: 8,
         formatter: '{b}'
       },
       itemStyle: {

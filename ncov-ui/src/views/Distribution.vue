@@ -28,23 +28,22 @@
 <script>
 import moment from "moment";
 import ECharts from "vue-echarts";
-import 'echarts/lib/chart/scatter'
-import 'echarts/lib/chart/effectScatter'
-import 'echarts/lib/chart/treemap'
-import 'echarts/lib/chart/map'
-import 'echarts/lib/component/geo'
-import 'echarts/lib/component/legend'
-import 'echarts/lib/component/title'
-import 'echarts/lib/component/visualMap'
-import 'echarts/lib/component/dataset'
-import 'echarts/lib/component/tooltip'
-
+import "echarts/lib/chart/scatter";
+import "echarts/lib/chart/effectScatter";
+import "echarts/lib/chart/treemap";
+import "echarts/lib/chart/map";
+import "echarts/lib/component/geo";
+import "echarts/lib/component/legend";
+import "echarts/lib/component/title";
+import "echarts/lib/component/visualMap";
+import "echarts/lib/component/dataset";
+import "echarts/lib/component/tooltip";
 
 import chinaMap from "../map-data/china.json";
 ECharts.registerMap("china", chinaMap);
 import mapOption from "../chart-options/map";
 import treeMapOption from "../chart-options/treemap";
-import {colorDict} from "../map-data/colors.json"
+import { colorDict } from "../map-data/colors.json";
 // import "echarts";
 
 let selectedOptionsList = {
@@ -52,25 +51,25 @@ let selectedOptionsList = {
     itemName: "confirmedCount",
     label: "确诊人数",
     color: colorDict.confirmed,
-    sizeDevicder: 15
+    sizeDevider: 15
   },
   suspected: {
     itemName: "suspectedCount",
     label: "疑似人数",
     color: colorDict.suspected,
-    sizeDevicder: 3
+    sizeDevider: 3
   },
   cured: {
     itemName: "curedCount",
     label: "治愈人数",
     color: colorDict.cured,
-    sizeDevicder: 3
+    sizeDevider: 3
   },
   dead: {
     itemName: "deadCount",
     label: "死亡人数",
     color: colorDict.dead,
-    sizeDevicder: 3
+    sizeDevider: 3
   }
 };
 export default {
@@ -90,7 +89,8 @@ export default {
           .format("YYYY-MM-DD")
       ),
       selectedOption: selectedOptionsList.confirmed,
-      level: "province"
+      level: "province",
+      devideSize: 10
     };
   },
   computed: {},
@@ -115,21 +115,22 @@ export default {
       this.theDateStr = this.theDate.format("YYYY-MM-DD");
       this.queryTheDateData();
     },
-    updateOptionAndQuery(sizeDevider) {
-      this.queryTheDateData();
-      this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
-      this.mapOption.series[0].itemStyle.color = this.selectedOption.color;
-      this.mapOption.series[0].symbolSize = val => {
-        if (val[2] == 0) return 0;
-        let size = Math.min(val[2] / sizeDevider, 25);
-        if (size < 2) size = 2;
-        return size;
-      };
+    updateOptionAndQuery() {
+      this.queryTheDateData().then(() => {
+        this.treeMapOption.series[0].name = this.mapOption.title.text = `${this.selectedOption.label}(${this.level})`;
+        this.mapOption.series[0].itemStyle.color = this.selectedOption.color;
+        this.mapOption.series[0].symbolSize = val => {
+          if (val[2] == 0) return 0;
+          let size = Math.min(val[2] / this.selectedOption.sizeDevider, 25);
+          if (size < 2) size = 2;
+          return size;
+        };
+      });
     },
     onConfirm() {
       console.log("onConfirm");
       this.selectedOption = selectedOptionsList.confirmed;
-      this.updateOptionAndQuery(15);
+      this.updateOptionAndQuery();
     },
     // onSuspect() {
     //   console.log("onSuspect");
@@ -147,12 +148,12 @@ export default {
     onCured() {
       console.log("onCured");
       this.selectedOption = selectedOptionsList.cured;
-      this.updateOptionAndQuery(3);
+      this.updateOptionAndQuery();
     },
     onDead() {
       console.log("onDead");
       this.selectedOption = selectedOptionsList.dead;
-      this.updateOptionAndQuery(3);
+      this.updateOptionAndQuery();
     },
     onCity() {
       this.level = "city";
@@ -185,33 +186,47 @@ export default {
       }, 0);
       return max;
     },
-    convertToMapTreeData(dataList){
-      let total = dataList.reduce( (pre, curr) =>{
-        return pre + curr[this.selectedOption.itemName]
-      }, 0)
+    convertToMapTreeData(dataList) {
+      let total = dataList.reduce((pre, curr) => {
+        return pre + curr[this.selectedOption.itemName];
+      }, 0);
 
       let formatedMapTreeData = dataList.map(item => {
-            let children = []
-            if (item.children){
-              let subTotal = item.children.reduce( (pre, curr) =>{
-                return pre + curr[this.selectedOption.itemName]
-              }, 0)
-              children = item.children.map( subItem =>{
-                return {
-                  name: subItem.name,
-                  value: subItem[this.selectedOption.itemName],
-                  total: subTotal
-                }
-              })
-            }
+        let children = [];
+        if (item.children) {
+          let subTotal = item.children.reduce((pre, curr) => {
+            return pre + curr[this.selectedOption.itemName];
+          }, 0);
+          children = item.children.map(subItem => {
             return {
-              name: item.name,
-              value: item[this.selectedOption.itemName],
-              total: total,
-              children: children
+              name: subItem.name,
+              value: subItem[this.selectedOption.itemName],
+              total: subTotal
             };
           });
+        }
+        return {
+          name: item.name,
+          value: item[this.selectedOption.itemName],
+          total: total,
+          children: children
+        };
+      });
       return formatedMapTreeData;
+    },
+    calcSizeDevider(dataList, itemName) {
+      let countList = dataList.map( item => item[itemName]);
+      countList.sort((a, b) => b - a);
+      let res = 15
+      if (countList.length > 3) {
+        res = countList[2] / 25.0;
+      }
+      console.log('calcSizeDevider1', res)
+      if( res < 0.5){
+        res = 0.5
+      }
+      console.log('calcSizeDevider2', res)
+      return res
     },
     queryTheDateData() {
       return this.$http
@@ -224,6 +239,9 @@ export default {
             return;
           }
           let dataList = res.data.data;
+          if(this.theDateStr == moment().format('YYYY-MM-DD')){
+            this.selectedOption.sizeDevider = this.calcSizeDevider(dataList, this.selectedOption.itemName);
+          }
           let formatedMapDataList = dataList.map(item => {
             return {
               name: item.name,
@@ -231,8 +249,8 @@ export default {
             };
           });
           this.mapOption.series[0].data = formatedMapDataList;
-          
-          let formatedMapTreeData  = this.convertToMapTreeData(dataList)
+
+          let formatedMapTreeData = this.convertToMapTreeData(dataList);
           this.treeMapOption.series[0].data = formatedMapTreeData;
         })
         .catch(res => {
@@ -241,7 +259,7 @@ export default {
     }
   },
   mounted() {
-    this.updateOptionAndQuery(15);
+    this.updateOptionAndQuery();
   }
 };
 </script>
