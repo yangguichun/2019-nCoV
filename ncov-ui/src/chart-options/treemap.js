@@ -5,7 +5,7 @@ function getLevelOption() {
     {
       itemStyle: {
         borderWidth: 0,
-        gapWidth: 5
+        gapWidth: 2
       }
     },
     {
@@ -65,6 +65,7 @@ export default {
         borderColor: '#fff'
       },
       levels: getLevelOption(),
+      leafDepth: 1,
       data: []
     }
   ]

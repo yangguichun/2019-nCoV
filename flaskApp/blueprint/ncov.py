@@ -98,6 +98,28 @@ def allAreaData(level, date):
             "curedCount": data.curedCount,
             "deadCount": data.deadCount
         }
+    def convertProvinceList(dataList):
+        provinceDict = {}
+        provinceList = []
+        for item in dataList:
+            if not item.provinceName: 
+                continue
+            if item.provinceName not in provinceDict:
+                province = { 'children': []}
+                provinceDict[item.provinceName] = province
+                provinceList.append(province)
+
+            provinceObj = provinceDict[item.provinceName]
+            if  not item.cityName: 
+                provinceObj['name'] = item.provinceName
+                provinceObj['confirmedCount'] = item.confirmedCount
+                provinceObj['suspectedCount'] = item.suspectedCount
+                provinceObj['curedCount'] = item.curedCount
+                provinceObj['deadCount'] = item.deadCount
+            else:
+                provinceObj['children'].append(convertCity(item))
+        return provinceList
+
     logger.info('allAreaData %s %s', level, date)
     startDate = date
     if strToDatetime(date) > datetime.now():
@@ -108,13 +130,17 @@ def allAreaData(level, date):
     if level == 'city':
         dataList = [convertCity(item) for item in dataList if item.cityName]
     elif level == 'province':
-        dataList = [convertProvince(item) for item in dataList if (item.provinceName and not item.cityName) ]
+        dataList = convertProvinceList(dataList)            
     else:
         return jsonify(code = -1, msg = "not supported error.")
-    posList = getPositionList([ '\''+item["name"]+'\'' for item in dataList])
+    
+    posList = {}
+    if len(dataList):
+        posList = getPositionList([ '\''+item["name"]+'\'' for item in dataList])
     result = []
     for data in dataList:
         if data["name"] not in posList:
+            logger.info('pos not ')
             continue
         data["lng"] = posList[data["name"]].longitude
         data["lat"] = posList[data["name"]].latitude

@@ -185,6 +185,34 @@ export default {
       }, 0);
       return max;
     },
+    convertToMapTreeData(dataList){
+      let total = dataList.reduce( (pre, curr) =>{
+        return pre + curr[this.selectedOption.itemName]
+      }, 0)
+
+      let formatedMapTreeData = dataList.map(item => {
+            let children = []
+            if (item.children){
+              let subTotal = item.children.reduce( (pre, curr) =>{
+                return pre + curr[this.selectedOption.itemName]
+              }, 0)
+              children = item.children.map( subItem =>{
+                return {
+                  name: subItem.name,
+                  value: subItem[this.selectedOption.itemName],
+                  total: subTotal
+                }
+              })
+            }
+            return {
+              name: item.name,
+              value: item[this.selectedOption.itemName],
+              total: total,
+              children: children
+            };
+          });
+      return formatedMapTreeData;
+    },
     queryTheDateData() {
       return this.$http
         .get(`/allareadata/${this.level}/${this.theDateStr}`)
@@ -192,29 +220,19 @@ export default {
           console.log("queryTheDateData success", res.data);
           let data = res.data;
           if (data.code != 0) {
-            console.log("queryTheDateData success", data.msg);
+            console.log("queryTheDateData fail, ", data);
             return;
           }
           let dataList = res.data.data;
-          let total = 0
           let formatedMapDataList = dataList.map(item => {
-            total += item[this.selectedOption.itemName]
             return {
               name: item.name,
               value: [item.lng, item.lat, item[this.selectedOption.itemName]]
             };
           });
-          let formatedMapTreeData = dataList.map(item => {
-            return {
-              name: item.name,
-              path: item.name,
-              value: item[this.selectedOption.itemName],
-              total: total
-            };
-          });
-
           this.mapOption.series[0].data = formatedMapDataList;
-          console.log("formatedMapTreeData", formatedMapTreeData);
+          
+          let formatedMapTreeData  = this.convertToMapTreeData(dataList)
           this.treeMapOption.series[0].data = formatedMapTreeData;
         })
         .catch(res => {
