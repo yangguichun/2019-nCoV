@@ -99,6 +99,7 @@
     <v-chart :options="curedLineOption" class="line" />
     <v-chart :options="confirmedIncBarOption" class="stack-bar" />
     <v-chart :options="suspectedIncBarOption" class="stack-bar" />
+    <v-chart :options="confirmedAndsupectedIncBarOption" class="stack-bar" />
     <v-chart :options="curedIncBarOption" class="stack-bar" />
     <v-chart :options="deadIncBarOption" class="stack-bar" />
   </div>
@@ -132,6 +133,7 @@ export default {
       curedLineOption: cloneDeep(lineOption),
       confirmedIncBarOption: cloneDeep(dayIncBarOption),
       suspectedIncBarOption: cloneDeep(dayIncBarOption),
+      confirmedAndsupectedIncBarOption: cloneDeep(dayIncBarOption),
       curedIncBarOption: cloneDeep(dayIncBarOption),
       deadIncBarOption: cloneDeep(dayIncBarOption),
       realTimeData: {
@@ -340,6 +342,17 @@ export default {
       options.series[0].data = yDataList1;
       options.series[1].data = yDataList2;
     },
+    updateConfirmedAndSuspectedIncStackBar(totalDataList, incDataList, options){
+      if (totalDataList.length == 0) return;
+      let dateList = totalDataList.map(item => item.updateTime);
+
+      let yDataList1 = totalDataList.map(item => item.confirmedCount + item.suspectedCount);
+      yDataList1.unshift(0);
+      let yDataList2 = incDataList.map(item => item.confirmedCount + item.suspectedCount);
+      options.xAxis.data = dateList;
+      options.series[0].data = yDataList1;
+      options.series[1].data = yDataList2;
+    },
     queryData() {
       return Promise.all([
         this.queryDayLogs(this.selectedLevel, this.selectedArea),
@@ -361,6 +374,7 @@ export default {
             this.suspectedIncBarOption,
             "suspectedCount"
           );
+          this.updateConfirmedAndSuspectedIncStackBar(res[0], res[1], this.confirmedAndsupectedIncBarOption)
           this.updateIncStackBar(
             res[0],
             res[1],
@@ -391,6 +405,8 @@ export default {
     this.confirmedIncBarOption.series[1].itemStyle.color = colorDict.confirmed;
     this.suspectedIncBarOption.title.text = "每日新增疑似人数";
     this.suspectedIncBarOption.series[1].itemStyle.color = colorDict.suspected;
+    this.confirmedAndsupectedIncBarOption.title.text = "每日新增确诊+疑似人数";
+    this.confirmedAndsupectedIncBarOption.series[1].itemStyle.color = colorDict.confirmedAndSuspected;
     this.curedIncBarOption.title.text = "每日新增治愈人数";
     this.curedIncBarOption.series[1].itemStyle.color = colorDict.cured;
     this.deadIncBarOption.title.text = "每日新增死亡人数";

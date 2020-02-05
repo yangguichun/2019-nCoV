@@ -13,14 +13,17 @@ export default {
           type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
       },
       formatter: function (params) {
-          var tar;
-          if (params[1].value !== '-') {
-              tar = params[1];
-          }
-          else {
-              tar = params[0];
-          }
-          return tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
+          console.log('formatter', params)
+          return `${params[0].name}<br/>${params[0].seriesName}: ${params[0].value}<br/>${params[1].seriesName}: ${params[1].value}`
+        //   var tar;
+        //   if (params[1].value !== '-') {
+        //       tar = params[1];
+        //   }
+        //   else {
+        //       tar = params[0];
+        //   }
+
+        //   return tar.name + '<br/>' + tar.seriesName + ' : ' + tar.value;
       }
   },
   legend: {
@@ -34,7 +37,7 @@ export default {
     // left: 'auto',
     top: "5%",
     right: "5%",
-    data: ['人数']
+    data: ['新增']
   },
   grid: {
       left: '3%',
@@ -58,7 +61,7 @@ export default {
   },
   series: [
       {
-          name: '辅助',
+          name: '总数',
           type: 'bar',
           stack: '参数1',
           itemStyle: {
@@ -74,7 +77,7 @@ export default {
           data: [0, 900, 1245, 1530, 1376, 1376, 1511, 1689, 1856, 1495, 1292]
       },
       {
-          name: '人数',
+          name: '新增',
           type: 'bar',
           stack: '参数1',
           label: {

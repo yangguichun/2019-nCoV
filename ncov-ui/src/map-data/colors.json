@@ -3,7 +3,8 @@
     "confirmed": "rgb(255,12,39)",
     "suspected": "rgb(255,127,39)",
     "cured": "rgb(0, 200, 15)",
-    "dead": "rgb(100, 100, 100)"
+    "dead": "rgb(100, 100, 100)",
+    "confirmedAndSuspected": "rgb(233, 46, 153)"
   },
   "colorList": [
     "rgb(255,12,39)",
