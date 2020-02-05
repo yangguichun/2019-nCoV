@@ -61,7 +61,15 @@ export default {
       label: {
         show: true,
         fontSize: 8,
-        formatter: '{b}'
+        align: 'center',
+        // formatter: '{b}'
+        formatter: function(params){
+          let name = params.name
+          if(name.indexOf('省')> 0 || name.indexOf('市')>0 || name.indexOf('区')>=0){
+            return name.substring(0, name.length-1)
+          }
+          return name;
+        }
       },
       itemStyle: {
         borderColor: '#fff'
