@@ -46,6 +46,8 @@ def getPositionList(nameList):
 @ncov_bp.route('/apilog/<count>', methods=['GET'])
 def apiLog(count):
     count = int(count)
+    if count>1000:
+        return jsonify(code=-1, msg="count should be small than 1000")
     logList = ApiLog.query.order_by(ApiLog.logTime.desc()).limit(count).all()
     def toLog(log):
         return {
