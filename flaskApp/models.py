@@ -46,6 +46,9 @@ class ApiLog(db.Model):
     api = db.Column(db.Text)
     params = db.Column(db.Text)
     remoteAddr = db.Column(db.Text)
+    def to_json(self):
+        dict = self.__dict__
+        return dict
 
 class DayCaches(db.Model):
     id = db.Column(db.Integer, primary_key=True)

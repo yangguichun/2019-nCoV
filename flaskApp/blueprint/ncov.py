@@ -43,6 +43,22 @@ def getPositionList(nameList):
     return res
 
 
+@ncov_bp.route('/apilog/<count>', methods=['GET'])
+def apiLog(count):
+    count = int(count)
+    logList = ApiLog.query.order_by(ApiLog.logTime.desc()).limit(count).all()
+    def toLog(log):
+        return {
+            "id": log.id,
+            "logTime": log.logTime,
+            "remoteAddr": log.remoteAddr,
+            "api": log.api,
+            "params": log.params
+        }
+    result = [ toLog(item) for item in logList]
+    return jsonify(code=0, data=result)
+
+
 @ncov_bp.route('/arealist/<level>', methods=['GET'])
 def areaList(level):
     # level, 只支持province, city
