@@ -25,6 +25,8 @@ def beforeRequest():
 
         logTime = datetime.now()
         params = ' '.join(paths[2:])       
+        if paths[1] == 'apilog':
+            return
         aLog = ApiLog(logTime = logTime, api=paths[1], params=params, remoteAddr=request.remote_addr)
         db.session.add(aLog)
         db.session.commit()
