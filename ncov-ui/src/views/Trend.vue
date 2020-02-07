@@ -9,15 +9,11 @@
         <van-radio name="global" @click="onGlobalClick">
           <div class="area-whole">全球</div>
         </van-radio>
+        <van-radio name="outhubei" @click="onOutHubeiClick">
+          <div class="area-whole">湖北省外</div>
+        </van-radio>
+
         <van-radio name="province">
-          <!-- <van-field
-            readonly
-            clickable
-            label="省份"
-            :value="selectedProvince"
-            placeholder="选择省份"
-            @click="onProvinceInputClick"
-          />-->
           <div class="area-cell" @click="onProvinceInputClick">
             <div class="label">省份</div>
             <div class="area-name">{{selectedProvince}}</div>
@@ -32,14 +28,6 @@
           </van-popup>
         </van-radio>
         <van-radio name="city">
-          <!-- <van-field
-            readonly
-            clickable
-            label="城市"
-            :value="selectedCity"
-            placeholder="选择城市"
-            @click="onCityInputClick"
-          />-->
           <div class="area-cell" @click="onCityInputClick">
             <div class="label">城市</div>
             <div class="area-name">{{selectedCity}}</div>
@@ -167,6 +155,9 @@ export default {
         Toast.success("刷新成功...");
       });
     },
+    onOutHubeiClick() {
+      this.queryOutHuBeiData()
+    },
     onGlobalClick() {
       this.selectedLevel = "country";
       this.selectedArea = "全球";
@@ -272,14 +263,13 @@ export default {
             return;
           }
           let dataList = response.data.data;
-          this.updateLineTrend(dataList);
           return dataList;
         })
         .catch(res => {
           console.log("queryDayLogs failed", res);
         });
     },
-    updateDataIncrement(dataList) {
+    updateTodayIncrement(dataList) {
       for (let item of dataList) {
         if (item.updateTime == moment().format("YYYY-MM-DD")) {
           this.incrementData = item;
@@ -298,8 +288,6 @@ export default {
             return;
           }
           let dataList = response.data.data;
-          // this.updateLineTrend(dataList);
-          this.updateDataIncrement(dataList);
           return dataList;
         })
         .catch(res => {
@@ -312,6 +300,7 @@ export default {
         .then(response => {
           console.log("queryReadtimeData success", response.data);
           this.realTimeData = response.data.data;
+          return this.realTimeData
         })
         .catch(res => {
           console.log("queryReadtimeData failed", res);
@@ -353,40 +342,90 @@ export default {
       options.series[0].data = yDataList1;
       options.series[1].data = yDataList2;
     },
-    queryData() {
-      return Promise.all([
-        this.queryDayLogs(this.selectedLevel, this.selectedArea),
-        this.queryIncrementLogs(this.selectedLevel, this.selectedArea),
-        this.queryReadtimeData(this.selectedLevel, this.selectedArea)
-      ])
-        .then(res => {
-          console.log("queryData success", res);
-
-          this.updateIncStackBar(
-            res[0],
-            res[1],
+    updateAllIncStackBar(datas){
+      this.updateIncStackBar(
+            datas[0],
+            datas[1],
             this.confirmedIncBarOption,
             "confirmedCount"
           );
           this.updateIncStackBar(
-            res[0],
-            res[1],
+            datas[0],
+            datas[1],
             this.suspectedIncBarOption,
             "suspectedCount"
           );
-          this.updateConfirmedAndSuspectedIncStackBar(res[0], res[1], this.confirmedAndsupectedIncBarOption)
+          this.updateConfirmedAndSuspectedIncStackBar(datas[0], datas[1], this.confirmedAndsupectedIncBarOption)
           this.updateIncStackBar(
-            res[0],
-            res[1],
+            datas[0],
+            datas[1],
             this.curedIncBarOption,
             "curedCount"
           );
           this.updateIncStackBar(
-            res[0],
-            res[1],
+            datas[0],
+            datas[1],
             this.deadIncBarOption,
             "deadCount"
           );
+    },
+
+    queryOutHuBeiData() {
+      Promise.all([
+        this.queryReadtimeData('country', '全球'),
+        this.queryReadtimeData('province', '湖北省'),
+        this.queryDayLogs('country', '全球'),
+        this.queryDayLogs('province', '湖北省'),
+        this.queryIncrementLogs('country', '全球'),
+        this.queryIncrementLogs('province', '湖北省')
+      ])
+        .then( res =>{
+          let realtime = {}
+          realtime.updateTime = res[0].updateTime
+          realtime.confirmedCount = res[0].confirmedCount - res[1].confirmedCount
+          realtime.suspectedCount = 0 //res[0].suspectedCount - res[1].suspectedCount
+          realtime.curedCount = res[0].curedCount - res[1].curedCount
+          realtime.deadCount = res[0].deadCount - res[1].deadCount
+          this.realTimeData = realtime    
+          
+          let dayLogs = []
+          for(let i =0; i<res[2].length; ++i){
+            let log = {}
+            log.updateTime = res[2][i].updateTime
+            log.confirmedCount = res[2][i].confirmedCount - res[3][i].confirmedCount
+            log.suspectedCount = 0//res[2][i].suspectedCount - res[3][i].suspectedCount
+            log.curedCount = res[2][i].curedCount - res[3][i].curedCount
+            log.deadCount = res[2][i].deadCount - res[3][i].deadCount
+            dayLogs.push(log)
+          }
+
+          let incLogs = []
+          for(let i =0; i<res[4].length; ++i){
+            let log = {}
+            log.updateTime = res[4][i].updateTime
+            log.confirmedCount = res[4][i].confirmedCount - res[5][i].confirmedCount
+            log.suspectedCount = 0//res[4][i].suspectedCount - res[5][i].suspectedCount
+            log.curedCount = res[4][i].curedCount - res[5][i].curedCount
+            log.deadCount = res[4][i].deadCount - res[5][i].deadCount
+            incLogs.push(log)            
+          }
+
+          this.updateLineTrend(dayLogs);
+          this.updateTodayIncrement(incLogs);
+          this.updateAllIncStackBar([dayLogs, incLogs]);
+        })
+    },
+    queryData() {
+      this.queryReadtimeData(this.selectedLevel, this.selectedArea)
+      return Promise.all([
+        this.queryDayLogs(this.selectedLevel, this.selectedArea),
+        this.queryIncrementLogs(this.selectedLevel, this.selectedArea),
+      ])
+        .then(res => {
+          console.log("queryData success", res);
+          this.updateLineTrend(res[0]);
+          this.updateTodayIncrement(res[1]);
+          this.updateAllIncStackBar(res)
         })
         .catch(res => {
           console.log("queryData failed", res);
