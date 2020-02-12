@@ -156,7 +156,7 @@ export default {
       });
     },
     onOutHubeiClick() {
-      this.queryOutHuBeiData()
+      this.queryOutHuBeiData();
     },
     onGlobalClick() {
       this.selectedLevel = "country";
@@ -204,21 +204,13 @@ export default {
     },
     calcConfirmedMax(dataList) {
       let max = dataList.reduce((prev, curr) => {
-        return Math.max(
-          prev,
-          curr.confirmedCount,
-          curr.suspectedCount,
-        );
+        return Math.max(prev, curr.confirmedCount, curr.suspectedCount);
       }, 0);
       return max;
     },
     calcCuredMax(dataList) {
       let max = dataList.reduce((prev, curr) => {
-        return Math.max(
-          prev,
-          curr.curedCount,
-          curr.deadCount
-        );
+        return Math.max(prev, curr.curedCount, curr.deadCount);
       }, 0);
       return max;
     },
@@ -300,7 +292,7 @@ export default {
         .then(response => {
           console.log("queryReadtimeData success", response.data);
           this.realTimeData = response.data.data;
-          return this.realTimeData
+          return this.realTimeData;
         })
         .catch(res => {
           console.log("queryReadtimeData failed", res);
@@ -318,114 +310,141 @@ export default {
           console.log("queryAreasList fail", res.data);
         });
     },
+    formateStackData(totalDataList, incDataList){
+      let decDataList = []
+      for(let i = 0; i<incDataList.length; ++i){
+        if(incDataList[i] >= 0){
+          decDataList.push(NaN)
+          continue
+        }
+        totalDataList[i] = totalDataList[i] + incDataList[i]
+        decDataList.push(-incDataList[i])
+        incDataList[i] = NaN
+      }
+      return decDataList
+    },
     updateIncStackBar(totalDataList, incDataList, options, itemName) {
       if (totalDataList.length == 0) return;
       let dateList = totalDataList.map(item => item.updateTime);
-      // let firstDay = moment(totalDataList[0].updateTime).add(-1, 'd').format('YYYY-MM-DD')
-      // dateList.push(firstDay)
-
       let yDataList1 = totalDataList.map(item => item[itemName]);
       yDataList1.unshift(0);
       let yDataList2 = incDataList.map(item => item[itemName]);
+      let yDataList3 = this.formateStackData(yDataList1, yDataList2)
       options.xAxis.data = dateList;
       options.series[0].data = yDataList1;
       options.series[1].data = yDataList2;
+      options.series[2].data = yDataList3;
     },
-    updateConfirmedAndSuspectedIncStackBar(totalDataList, incDataList, options){
+    updateConfirmedAndSuspectedIncStackBar(
+      totalDataList,
+      incDataList,
+      options
+    ) {
       if (totalDataList.length == 0) return;
       let dateList = totalDataList.map(item => item.updateTime);
 
-      let yDataList1 = totalDataList.map(item => item.confirmedCount + item.suspectedCount);
+      let yDataList1 = totalDataList.map(
+        item => item.confirmedCount + item.suspectedCount
+      );
       yDataList1.unshift(0);
-      let yDataList2 = incDataList.map(item => item.confirmedCount + item.suspectedCount);
+      let yDataList2 = incDataList.map(
+        item => item.confirmedCount + item.suspectedCount
+      );
+      let yDataList3 = this.formateStackData(yDataList1, yDataList2)
       options.xAxis.data = dateList;
       options.series[0].data = yDataList1;
       options.series[1].data = yDataList2;
+      options.series[2].data = yDataList3;
     },
-    updateAllIncStackBar(datas){
+    updateAllIncStackBar(datas) {
       this.updateIncStackBar(
-            datas[0],
-            datas[1],
-            this.confirmedIncBarOption,
-            "confirmedCount"
-          );
-          this.updateIncStackBar(
-            datas[0],
-            datas[1],
-            this.suspectedIncBarOption,
-            "suspectedCount"
-          );
-          this.updateConfirmedAndSuspectedIncStackBar(datas[0], datas[1], this.confirmedAndsupectedIncBarOption)
-          this.updateIncStackBar(
-            datas[0],
-            datas[1],
-            this.curedIncBarOption,
-            "curedCount"
-          );
-          this.updateIncStackBar(
-            datas[0],
-            datas[1],
-            this.deadIncBarOption,
-            "deadCount"
-          );
+        datas[0],
+        datas[1],
+        this.confirmedIncBarOption,
+        "confirmedCount"
+      );
+      this.updateIncStackBar(
+        datas[0],
+        datas[1],
+        this.suspectedIncBarOption,
+        "suspectedCount"
+      );
+      this.updateConfirmedAndSuspectedIncStackBar(
+        datas[0],
+        datas[1],
+        this.confirmedAndsupectedIncBarOption
+      );
+      this.updateIncStackBar(
+        datas[0],
+        datas[1],
+        this.curedIncBarOption,
+        "curedCount"
+      );
+      this.updateIncStackBar(
+        datas[0],
+        datas[1],
+        this.deadIncBarOption,
+        "deadCount"
+      );
     },
 
     queryOutHuBeiData() {
       Promise.all([
-        this.queryReadtimeData('country', '全球'),
-        this.queryReadtimeData('province', '湖北省'),
-        this.queryDayLogs('country', '全球'),
-        this.queryDayLogs('province', '湖北省'),
-        this.queryIncrementLogs('country', '全球'),
-        this.queryIncrementLogs('province', '湖北省')
-      ])
-        .then( res =>{
-          let realtime = {}
-          realtime.updateTime = res[0].updateTime
-          realtime.confirmedCount = res[0].confirmedCount - res[1].confirmedCount
-          realtime.suspectedCount = 0 //res[0].suspectedCount - res[1].suspectedCount
-          realtime.curedCount = res[0].curedCount - res[1].curedCount
-          realtime.deadCount = res[0].deadCount - res[1].deadCount
-          this.realTimeData = realtime    
-          
-          let dayLogs = []
-          for(let i =0; i<res[2].length; ++i){
-            let log = {}
-            log.updateTime = res[2][i].updateTime
-            log.confirmedCount = res[2][i].confirmedCount - res[3][i].confirmedCount
-            log.suspectedCount = 0//res[2][i].suspectedCount - res[3][i].suspectedCount
-            log.curedCount = res[2][i].curedCount - res[3][i].curedCount
-            log.deadCount = res[2][i].deadCount - res[3][i].deadCount
-            dayLogs.push(log)
-          }
+        this.queryReadtimeData("country", "全球"),
+        this.queryReadtimeData("province", "湖北省"),
+        this.queryDayLogs("country", "全球"),
+        this.queryDayLogs("province", "湖北省"),
+        this.queryIncrementLogs("country", "全球"),
+        this.queryIncrementLogs("province", "湖北省")
+      ]).then(res => {
+        let realtime = {};
+        realtime.updateTime = res[0].updateTime;
+        realtime.confirmedCount = res[0].confirmedCount - res[1].confirmedCount;
+        realtime.suspectedCount = 0; //res[0].suspectedCount - res[1].suspectedCount
+        realtime.curedCount = res[0].curedCount - res[1].curedCount;
+        realtime.deadCount = res[0].deadCount - res[1].deadCount;
+        this.realTimeData = realtime;
 
-          let incLogs = []
-          for(let i =0; i<res[4].length; ++i){
-            let log = {}
-            log.updateTime = res[4][i].updateTime
-            log.confirmedCount = res[4][i].confirmedCount - res[5][i].confirmedCount
-            log.suspectedCount = 0//res[4][i].suspectedCount - res[5][i].suspectedCount
-            log.curedCount = res[4][i].curedCount - res[5][i].curedCount
-            log.deadCount = res[4][i].deadCount - res[5][i].deadCount
-            incLogs.push(log)            
-          }
+        let dayLogs = [];
+        for (let i = 0; i < res[2].length; ++i) {
+          let log = {};
+          log.updateTime = res[2][i].updateTime;
+          log.confirmedCount =
+            res[2][i].confirmedCount - res[3][i].confirmedCount;
+          log.suspectedCount = 0; //res[2][i].suspectedCount - res[3][i].suspectedCount
+          log.curedCount = res[2][i].curedCount - res[3][i].curedCount;
+          log.deadCount = res[2][i].deadCount - res[3][i].deadCount;
+          dayLogs.push(log);
+        }
 
-          this.updateLineTrend(dayLogs);
-          this.updateTodayIncrement(incLogs);
-          this.updateAllIncStackBar([dayLogs, incLogs]);
-        })
+        let incLogs = [];
+        for (let i = 0; i < res[4].length; ++i) {
+          let log = {};
+          log.updateTime = res[4][i].updateTime;
+          log.confirmedCount =
+            res[4][i].confirmedCount - res[5][i].confirmedCount;
+          log.suspectedCount = 0; //res[4][i].suspectedCount - res[5][i].suspectedCount
+          log.curedCount = res[4][i].curedCount - res[5][i].curedCount;
+          log.deadCount = res[4][i].deadCount - res[5][i].deadCount;
+          incLogs.push(log);
+        }
+
+        this.updateLineTrend(dayLogs);
+        this.updateTodayIncrement(incLogs);
+        this.updateAllIncStackBar([dayLogs, incLogs]);
+      });
     },
     queryData() {
-      this.queryReadtimeData(this.selectedLevel, this.selectedArea)
+      this.queryReadtimeData(this.selectedLevel, this.selectedArea);
       return Promise.all([
         this.queryDayLogs(this.selectedLevel, this.selectedArea),
-        this.queryIncrementLogs(this.selectedLevel, this.selectedArea),
+        this.queryIncrementLogs(this.selectedLevel, this.selectedArea)
       ])
         .then(res => {
           console.log("queryData success", res);
           this.updateLineTrend(res[0]);
           this.updateTodayIncrement(res[1]);
-          this.updateAllIncStackBar(res)
+          this.updateAllIncStackBar(res);
         })
         .catch(res => {
           console.log("queryData failed", res);
@@ -434,18 +453,19 @@ export default {
   },
   mounted() {
     this.confirmedLineOption.color = [colorDict.confirmed, colorDict.suspected];
-    this.confirmedLineOption.title.text = '确诊与疑似总数'
+    this.confirmedLineOption.title.text = "确诊与疑似总数";
     this.curedLineOption.color = [colorDict.cured, colorDict.dead];
-    this.curedLineOption.series[0].name = '治愈'
-    this.curedLineOption.series[1].name = '死亡'
-    this.curedLineOption.title.text = '治愈与死亡总数'
+    this.curedLineOption.series[0].name = "治愈";
+    this.curedLineOption.series[1].name = "死亡";
+    this.curedLineOption.title.text = "治愈与死亡总数";
 
     this.confirmedIncBarOption.title.text = "每日新增确诊人数";
     this.confirmedIncBarOption.series[1].itemStyle.color = colorDict.confirmed;
     this.suspectedIncBarOption.title.text = "每日新增疑似人数";
     this.suspectedIncBarOption.series[1].itemStyle.color = colorDict.suspected;
     this.confirmedAndsupectedIncBarOption.title.text = "每日新增确诊+疑似人数";
-    this.confirmedAndsupectedIncBarOption.series[1].itemStyle.color = colorDict.confirmedAndSuspected;
+    this.confirmedAndsupectedIncBarOption.series[1].itemStyle.color =
+      colorDict.confirmedAndSuspected;
     this.curedIncBarOption.title.text = "每日新增治愈人数";
     this.curedIncBarOption.series[1].itemStyle.color = colorDict.cured;
     this.deadIncBarOption.title.text = "每日新增死亡人数";
