@@ -86,6 +86,7 @@
     <v-chart :options="confirmedLineOption" class="line" />
     <v-chart :options="curedLineOption" class="line" />
     <v-chart :options="confirmedIncBarOption" class="stack-bar" />
+    <v-chart :options="confirmedSubCuredIncBarOption" class="stack-bar" />
     <v-chart :options="suspectedIncBarOption" class="stack-bar" />
     <v-chart :options="confirmedAndsupectedIncBarOption" class="stack-bar" />
     <v-chart :options="curedIncBarOption" class="stack-bar" />
@@ -122,6 +123,8 @@ export default {
       confirmedIncBarOption: cloneDeep(dayIncBarOption),
       suspectedIncBarOption: cloneDeep(dayIncBarOption),
       confirmedAndsupectedIncBarOption: cloneDeep(dayIncBarOption),
+      // 确诊减去治愈的
+      confirmedSubCuredIncBarOption: cloneDeep(dayIncBarOption),
       curedIncBarOption: cloneDeep(dayIncBarOption),
       deadIncBarOption: cloneDeep(dayIncBarOption),
       realTimeData: {
@@ -310,18 +313,18 @@ export default {
           console.log("queryAreasList fail", res.data);
         });
     },
-    formateStackData(totalDataList, incDataList){
-      let decDataList = []
-      for(let i = 0; i<incDataList.length; ++i){
-        if(incDataList[i] >= 0){
-          decDataList.push(NaN)
-          continue
+    formateStackData(totalDataList, incDataList) {
+      let decDataList = [];
+      for (let i = 0; i < incDataList.length; ++i) {
+        if (incDataList[i] >= 0) {
+          decDataList.push(NaN);
+          continue;
         }
-        totalDataList[i] = totalDataList[i] + incDataList[i]
-        decDataList.push(-incDataList[i])
-        incDataList[i] = NaN
+        totalDataList[i] = totalDataList[i] + incDataList[i];
+        decDataList.push(-incDataList[i]);
+        incDataList[i] = NaN;
       }
-      return decDataList
+      return decDataList;
     },
     updateIncStackBar(totalDataList, incDataList, options, itemName) {
       if (totalDataList.length == 0) return;
@@ -329,7 +332,7 @@ export default {
       let yDataList1 = totalDataList.map(item => item[itemName]);
       yDataList1.unshift(0);
       let yDataList2 = incDataList.map(item => item[itemName]);
-      let yDataList3 = this.formateStackData(yDataList1, yDataList2)
+      let yDataList3 = this.formateStackData(yDataList1, yDataList2);
       options.xAxis.data = dateList;
       options.series[0].data = yDataList1;
       options.series[1].data = yDataList2;
@@ -350,7 +353,24 @@ export default {
       let yDataList2 = incDataList.map(
         item => item.confirmedCount + item.suspectedCount
       );
-      let yDataList3 = this.formateStackData(yDataList1, yDataList2)
+      let yDataList3 = this.formateStackData(yDataList1, yDataList2);
+      options.xAxis.data = dateList;
+      options.series[0].data = yDataList1;
+      options.series[1].data = yDataList2;
+      options.series[2].data = yDataList3;
+    },
+    updateConfirmedSubCuredIncStackBar(totalDataList, incDataList, options) {
+      if (totalDataList.length == 0) return;
+      let dateList = totalDataList.map(item => item.updateTime);
+
+      let yDataList1 = totalDataList.map(
+        item => item.confirmedCount - item.curedCount
+      );
+      yDataList1.unshift(0);
+      let yDataList2 = incDataList.map(
+        item => item.confirmedCount - item.curedCount
+      );
+      let yDataList3 = this.formateStackData(yDataList1, yDataList2);
       options.xAxis.data = dateList;
       options.series[0].data = yDataList1;
       options.series[1].data = yDataList2;
@@ -373,6 +393,11 @@ export default {
         datas[0],
         datas[1],
         this.confirmedAndsupectedIncBarOption
+      );
+      this.updateConfirmedSubCuredIncStackBar(
+        datas[0],
+        datas[1],
+        this.confirmedSubCuredIncBarOption
       );
       this.updateIncStackBar(
         datas[0],
@@ -466,6 +491,9 @@ export default {
     this.confirmedAndsupectedIncBarOption.title.text = "每日新增确诊+疑似人数";
     this.confirmedAndsupectedIncBarOption.series[1].itemStyle.color =
       colorDict.confirmedAndSuspected;
+    this.confirmedSubCuredIncBarOption.title.text = "存量确诊 = 确诊-治愈";
+    this.confirmedSubCuredIncBarOption.series[1].itemStyle.color =
+      colorDict.confirmed;
     this.curedIncBarOption.title.text = "每日新增治愈人数";
     this.curedIncBarOption.series[1].itemStyle.color = colorDict.cured;
     this.deadIncBarOption.title.text = "每日新增死亡人数";
