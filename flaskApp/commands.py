@@ -3,6 +3,7 @@ from flaskApp.models import DataLogs, LatestTime, Area, DayCaches
 from flaskApp.crawler.crawlerFromTencent import readnCoVFromTencent
 from flaskApp.crawler.crawlerAreaTencent import readnAreaFromTencent
 from flaskApp.crawler.crawlerFromIsasclin import readOverallDataFromIsaaclin, readProvinceDataFromIsaaclin
+from flaskApp.crawler.crawlerFromIsasclinReal import readnCovFromIsasclin
 from flaskApp.crawler.crawlPosition import readPositionFromBaidu
 from flaskApp.utils import logger
 from sqlalchemy import and_, distinct, text
@@ -48,7 +49,8 @@ def updateToDayCaches(datalogList):
     return True
 
 def do_crawl():
-    data = readnCoVFromTencent()
+    # data = readnCoVFromTencent()
+    data = readnCovFromIsasclin()
     if len(data['data']) == 0:
         logger.warning('没有采集到数据')
         return False

@@ -54,8 +54,6 @@ def readProvinceDataFromIsaaclin():
         return []
 
 
-
-
 def convertOverallDataList(dataList):
     result = []
     for item in dataList:
