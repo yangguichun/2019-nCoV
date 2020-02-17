@@ -63,7 +63,7 @@
         <div class="label">疑似病例</div>
         <div>
           <div class="sub-label">今日</div>
-          <div class="inc suspected">+{{incrementData.suspectedCount}}</div>
+          <div class="inc suspected"><span v-if="incrementData.suspectedCount>=0">+</span>{{incrementData.suspectedCount}}</div>
         </div>
       </div>
       <div class="real-item">
